@@ -10,5 +10,41 @@
     "title": "概览",
     "analytics": "分析页",
     "workspace": "工作台"
+  },
+  "customer": {
+    "title": "客户管理",
+    "index": "客户列表"
+  },
+  "marketing": {
+    "title": "营销管理",
+    "index": "营销中心"
+  },
+  "sales": {
+    "title": "销售管理",
+    "index": "销售中心"
+  },
+  "customerService": {
+    "title": "客服管理",
+    "index": "客服中心"
+  },
+  "care": {
+    "title": "护理管理",
+    "index": "护理中心"
+  },
+  "rehabilitation": {
+    "title": "产康管理",
+    "index": "产康中心"
+  },
+  "inventory": {
+    "title": "库存管理",
+    "index": "库存中心"
+  },
+  "logistics": {
+    "title": "后勤管理",
+    "index": "后勤中心"
+  },
+  "security": {
+    "title": "安保管理",
+    "index": "安保中心"
   }
 }
