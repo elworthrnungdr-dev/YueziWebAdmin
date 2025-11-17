@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 
+import { CircleX, UserRoundPen } from '@vben/icons';
 import {
   Button,
   DatePicker,
@@ -733,6 +734,9 @@ onMounted(() => {
         <TableColumn title="操作" key="action" :width="120">
           <template #default="{ record }">
             <Button type="link" size="small" @click="handleEdit(record)">
+              <template #icon>
+                <UserRoundPen />
+              </template>
               编辑
             </Button>
             <Button
@@ -741,6 +745,9 @@ onMounted(() => {
               danger
               @click="handleDelete(record.t_customerid)"
             >
+              <template #icon>
+                <CircleX />
+              </template>
               删除
             </Button>
           </template>
