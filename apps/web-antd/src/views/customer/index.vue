@@ -14,7 +14,6 @@ import {
   TableColumn,
   Upload,
 } from 'ant-design-vue';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
 
 // 客户数据类型定义
 interface Customer {
@@ -734,9 +733,6 @@ onMounted(() => {
         <TableColumn title="操作" key="action" :width="120">
           <template #default="{ record }">
             <Button type="link" size="small" @click="handleEdit(record)">
-              <template #icon>
-                <EditOutlined />
-              </template>
               编辑
             </Button>
             <Button
@@ -745,9 +741,6 @@ onMounted(() => {
               danger
               @click="handleDelete(record.t_customerid)"
             >
-              <template #icon>
-                <DeleteOutlined />
-              </template>
               删除
             </Button>
           </template>
