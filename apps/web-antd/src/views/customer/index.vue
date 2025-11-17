@@ -735,7 +735,7 @@ onMounted(() => {
           <template #default="{ record }">
             <Button type="link" size="small" @click="handleEdit(record)">
               <template #icon>
-                <UserRoundPen />
+                <UserRoundPen class="action-icon" />
               </template>
               编辑
             </Button>
@@ -746,7 +746,7 @@ onMounted(() => {
               @click="handleDelete(record.t_customerid)"
             >
               <template #icon>
-                <CircleX />
+                <CircleX class="action-icon" />
               </template>
               删除
             </Button>
@@ -1218,3 +1218,10 @@ onMounted(() => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.action-icon {
+  width: 14px;
+  height: 14px;
+}
+</style>
