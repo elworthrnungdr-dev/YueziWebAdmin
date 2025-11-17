@@ -14,6 +14,7 @@ import {
   TableColumn,
   Upload,
 } from 'ant-design-vue';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
 
 // 客户数据类型定义
 interface Customer {
@@ -263,7 +264,10 @@ const performSearch = () => {
   }
 
   // 入住时间段搜索
-  if (searchForm.checkin_time_range && searchForm.checkin_time_range.length === 2) {
+  if (
+    searchForm.checkin_time_range &&
+    searchForm.checkin_time_range.length === 2
+  ) {
     filtered = filtered.filter((customer) => {
       const checkinTime = customer.checkin_time;
       if (!checkinTime) return false;
@@ -336,7 +340,7 @@ const handleAdd = () => {
   modalTitle.value = '新增客户';
   isEditing.value = false;
   currentCustomerId.value = '';
-  
+
   // 重置表单
   Object.assign(customerForm, {
     customer_name: '',
@@ -385,11 +389,11 @@ const handleAdd = () => {
     idcard_back: '',
     remark: '',
   });
-  
+
   // 重置图片上传
   idcardFrontList.value = [];
   idcardBackList.value = [];
-  
+
   modalVisible.value = true;
 };
 
@@ -398,7 +402,7 @@ const handleEdit = (record: Customer) => {
   modalTitle.value = '编辑客户';
   isEditing.value = true;
   currentCustomerId.value = record.t_customerid;
-  
+
   // 填充表单数据
   Object.assign(customerForm, {
     customer_name: record.customer_name || '',
@@ -447,7 +451,7 @@ const handleEdit = (record: Customer) => {
     idcard_back: record.idcard_back || '',
     remark: record.remark || '',
   });
-  
+
   // 设置图片上传（如果有图片URL）
   idcardFrontList.value = record.idcard_front
     ? [
@@ -470,7 +474,7 @@ const handleEdit = (record: Customer) => {
         },
       ]
     : [];
-  
+
   modalVisible.value = true;
 };
 
@@ -500,7 +504,7 @@ const handleSave = () => {
     customers.value.push(newCustomer);
     message.success('客户添加成功');
   }
-  
+
   modalVisible.value = false;
   loadCustomers();
 };
@@ -509,7 +513,6 @@ const handleSave = () => {
 const handleCancel = () => {
   modalVisible.value = false;
 };
-
 
 // 批量删除
 const handleBatchDelete = () => {
@@ -550,7 +553,6 @@ onMounted(() => {
   loadCustomers();
 });
 </script>
-
 
 <template>
   <div class="p-4">
@@ -659,7 +661,7 @@ onMounted(() => {
           checkStrictly: false,
         }"
         :pagination="false"
-        :scroll="{ x: 2000 }"
+        :scroll="{ x: 200 }"
         row-key="t_customerid"
       >
         <TableColumn
@@ -668,17 +670,12 @@ onMounted(() => {
           key="customer_name"
           :width="100"
         />
-        <TableColumn
-          title="年龄"
-          data-index="age"
-          key="age"
-          :width="60"
-        />
+        <TableColumn title="年龄" data-index="age" key="age" :width="60" />
         <TableColumn
           title="电话号码"
           data-index="phone_number"
           key="phone_number"
-          :width="120"
+          :width="80"
         />
         <TableColumn
           title="房间号"
@@ -690,31 +687,31 @@ onMounted(() => {
           title="客户状态"
           data-index="customer_status"
           key="customer_status"
-          :width="80"
+          :width="100"
         />
         <TableColumn
           title="付款状态"
           data-index="payment_status"
           key="payment_status"
-          :width="80"
+          :width="100"
         />
         <TableColumn
           title="预产期"
           data-index="expected_delivery_date"
           key="expected_delivery_date"
-          :width="100"
+          :width="120"
         />
         <TableColumn
           title="分娩时间"
           data-index="delivery_date"
           key="delivery_date"
-          :width="100"
+          :width="120"
         />
         <TableColumn
           title="分娩方式"
           data-index="delivery_method"
           key="delivery_method"
-          :width="80"
+          :width="100"
         />
         <TableColumn
           title="胎次"
@@ -732,35 +729,14 @@ onMounted(() => {
           title="宝宝性别"
           data-index="baby_gender"
           key="baby_gender"
-          :width="80"
-        />
-        <TableColumn
-          title="分娩医院"
-          data-index="delivery_hospital"
-          key="delivery_hospital"
-          :width="120"
-        />
-        <TableColumn
-          title="当前第几次入住"
-          data-index="stay_times"
-          key="stay_times"
-          :width="120"
-        />
-        <TableColumn
-          title="入住时间"
-          data-index="checkin_time"
-          key="checkin_time"
           :width="100"
         />
-        <TableColumn
-          title="出所时间"
-          data-index="checkout_time"
-          key="checkout_time"
-          :width="100"
-        />
-        <TableColumn title="操作" key="action">
+        <TableColumn title="操作" key="action" :width="120">
           <template #default="{ record }">
             <Button type="link" size="small" @click="handleEdit(record)">
+              <template #icon>
+                <EditOutlined />
+              </template>
               编辑
             </Button>
             <Button
@@ -769,6 +745,9 @@ onMounted(() => {
               danger
               @click="handleDelete(record.t_customerid)"
             >
+              <template #icon>
+                <DeleteOutlined />
+              </template>
               删除
             </Button>
           </template>
