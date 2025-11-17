@@ -1221,7 +1221,7 @@ onMounted(() => {
 
 <style scoped>
 .action-icon {
-  width: 14px;
-  height: 14px;
+  width: 28px;
+  height: 28px;
 }
 </style>
