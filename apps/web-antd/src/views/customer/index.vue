@@ -209,7 +209,7 @@ const searchForm = reactive({
 });
 
 // 搜索模块展开状态
-const searchExpanded = ref(false);
+const searchExpanded = ref(true);
 
 // 分页
 const pagination = reactive({
@@ -660,7 +660,7 @@ onMounted(() => {
           checkStrictly: false,
         }"
         :pagination="false"
-        :scroll="{ x: 200 }"
+        :scroll="{ x: 'max-content' }"
         row-key="t_customerid"
       >
         <TableColumn
