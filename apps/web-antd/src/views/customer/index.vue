@@ -662,19 +662,24 @@ onMounted(() => {
         row-key="t_customerid"
       >
         <TableColumn
-          title="客户ID"
-          data-index="t_customerid"
-          key="t_customerid"
-        />
-        <TableColumn
-          title="姓名"
+          title="客户姓名"
           data-index="customer_name"
           key="customer_name"
         />
         <TableColumn
-          title="电话"
+          title="年龄"
+          data-index="age"
+          key="age"
+        />
+        <TableColumn
+          title="电话号码"
           data-index="phone_number"
           key="phone_number"
+        />
+        <TableColumn
+          title="房间号"
+          data-index="t_room_id"
+          key="t_room_id"
         />
         <TableColumn
           title="客户状态"
@@ -686,11 +691,55 @@ onMounted(() => {
           data-index="payment_status"
           key="payment_status"
         />
-        <TableColumn title="房号" data-index="t_room_id" key="t_room_id" />
+        <TableColumn
+          title="预产期"
+          data-index="expected_delivery_date"
+          key="expected_delivery_date"
+        />
+        <TableColumn
+          title="分娩时间"
+          data-index="delivery_date"
+          key="delivery_date"
+        />
+        <TableColumn
+          title="分娩方式"
+          data-index="delivery_method"
+          key="delivery_method"
+        />
+        <TableColumn
+          title="胎次"
+          data-index="parity"
+          key="parity"
+        />
+        <TableColumn
+          title="胎型"
+          data-index="fetus_type"
+          key="fetus_type"
+        />
+        <TableColumn
+          title="宝宝性别"
+          data-index="baby_gender"
+          key="baby_gender"
+        />
+        <TableColumn
+          title="分娩医院"
+          data-index="delivery_hospital"
+          key="delivery_hospital"
+        />
+        <TableColumn
+          title="当前第几次入住"
+          data-index="stay_times"
+          key="stay_times"
+        />
         <TableColumn
           title="入住时间"
           data-index="checkin_time"
           key="checkin_time"
+        />
+        <TableColumn
+          title="出所时间"
+          data-index="checkout_time"
+          key="checkout_time"
         />
         <TableColumn title="操作" key="action">
           <template #default="{ record }">
