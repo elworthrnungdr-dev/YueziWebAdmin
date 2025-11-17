@@ -659,6 +659,7 @@ onMounted(() => {
           checkStrictly: false,
         }"
         :pagination="false"
+        :scroll="{ x: 2000 }"
         row-key="t_customerid"
       >
         <TableColumn
