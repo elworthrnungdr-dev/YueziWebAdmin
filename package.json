@@ -120,5 +120,8 @@
       "canvas",
       "node-gyp"
     ]
+  },
+  "dependencies": {
+    "xe-utils": "^3.7.9"
   }
 }
