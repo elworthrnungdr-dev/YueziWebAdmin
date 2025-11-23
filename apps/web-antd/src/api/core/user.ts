@@ -12,7 +12,7 @@ const mockUserInfo: UserInfo = {
   userId: '1',
   username: 'admin',
   desc: 'Temporary mock user until /api/user/info is ready',
-  homePath: '/dashboard/analysis',
+  //homePath: '/dashboard/analytics',
   token: '',
 };
 

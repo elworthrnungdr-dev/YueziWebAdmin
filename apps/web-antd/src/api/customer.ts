@@ -3,7 +3,7 @@ const defaultCustomersBase = '/api';
 
 const configuredCustomersBase =
   import.meta.env.VITE_CUSTOMERS_API_BASE ??
-  import.meta.env.VITE_GLOB_API_URL ??
+  import.meta.env.VITE_GLOB_API_URL_TEST ??
   defaultCustomersBase;
 
 const customersApiBase = (() => {
