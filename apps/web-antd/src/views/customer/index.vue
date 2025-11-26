@@ -186,6 +186,7 @@ const mapApiCustomerToLocal = (apiCustomer: ApiCustomer): Customer => {
   customerFieldKeys.forEach((localKey) => {
     const apiKey = customerFieldMap[localKey];
     const value = (apiCustomer as Record<string, unknown>)[apiKey];
+    // 直接使用接口返回的原始值，不做任何格式化处理（包括时间字段）
     (local as Record<string, unknown>)[localKey] =
       value ?? (local as Record<string, unknown>)[localKey];
   });

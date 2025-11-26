@@ -160,7 +160,7 @@ async function customerRequest<T>(
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');
     throw new Error(
-      `客户接口请求失败(${response.status}): ${errorText || response.statusText}`,
+      `接口请求失败(${response.status}): ${errorText || response.statusText}`,
     );
   }
 
@@ -169,16 +169,27 @@ async function customerRequest<T>(
     return null as T;
   }
 
+  // 尝试解析 JSON
   let payload: CustomersApiResponse<T>;
   try {
     payload = JSON.parse(rawText) as CustomersApiResponse<T>;
   } catch (error) {
-    console.error('客户接口返回的原始内容：', rawText);
-    throw new Error('客户接口响应格式异常，无法解析为 JSON');
+    // 如果解析失败，但响应状态码是成功的（2xx），可能是纯文本成功消息
+    if (response.ok) {
+      const trimmedText = rawText.trim();
+      // 如果是成功响应且内容是文本消息（如"客户信息更新成功"），认为操作成功
+      // 对于更新/删除/添加操作，返回 null 表示成功
+      if (trimmedText) {
+        return null as T;
+      }
+    }
+    // 其他情况抛出错误
+    console.error('接口返回的原始内容：', rawText);
+    throw new Error('接口响应格式异常，无法解析为 JSON');
   }
 
   if (!payload.success || payload.code !== 200) {
-    throw new Error(payload.message || '客户接口返回异常');
+    throw new Error(payload.message || '接口返回异常');
   }
   return payload.data;
 }
