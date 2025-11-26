@@ -18,7 +18,10 @@ import {
   addCustomer,
   deleteCustomer as deleteCustomerApi,
   getCustomersPage,
+  getImageById,
+  getImagePreviewUrl as getImagePreviewUrlApi,
   updateCustomer as updateCustomerApi,
+  uploadImage,
   type ApiCustomer,
   type CustomerPayload,
 } from '#/api/customer';
@@ -237,12 +240,145 @@ const beforeUpload = (file: File) => {
   const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
   if (!isJpgOrPng) {
     message.error('只能上传 JPG/PNG 格式的图片!');
+    return false;
   }
   const isLt2M = file.size / 1024 / 1024 < 2;
   if (!isLt2M) {
     message.error('图片大小不能超过 2MB!');
+    return false;
   }
-  return isJpgOrPng && isLt2M;
+  return true;
+};
+
+// 处理身份证正面图片上传
+const handleIdcardFrontUpload = async (options: any) => {
+  const { file, onSuccess, onError } = options;
+  try {
+    const imageId = await uploadImage(file);
+    // 将图片ID保存到表单
+    customerForm.idcard_front = imageId;
+    // 更新文件列表，显示上传成功
+    idcardFrontList.value = [
+      {
+        uid: file.uid,
+        name: file.name,
+        status: 'done',
+        imageId,
+      },
+    ];
+    onSuccess?.();
+    message.success('身份证正面图片上传成功');
+  } catch (error) {
+    console.error('身份证正面图片上传失败：', error);
+    message.error(
+      error instanceof Error ? error.message : '身份证正面图片上传失败',
+    );
+    onError?.(error);
+  }
+};
+
+// 处理身份证反面图片上传
+const handleIdcardBackUpload = async (options: any) => {
+  const { file, onSuccess, onError } = options;
+  try {
+    const imageId = await uploadImage(file);
+    // 将图片ID保存到表单
+    customerForm.idcard_back = imageId;
+    // 更新文件列表，显示上传成功
+    idcardBackList.value = [
+      {
+        uid: file.uid,
+        name: file.name,
+        status: 'done',
+        imageId,
+      },
+    ];
+    onSuccess?.();
+    message.success('身份证反面图片上传成功');
+  } catch (error) {
+    console.error('身份证反面图片上传失败：', error);
+    message.error(
+      error instanceof Error ? error.message : '身份证反面图片上传失败',
+    );
+    onError?.(error);
+  }
+};
+
+// 通过图片ID获取Base64并转换为预览URL（用于显示）
+const getImagePreviewUrl = async (imageId: string): Promise<string> => {
+  try {
+    const base64Data = await getImageById(imageId);
+    // 如果返回的Base64数据不包含data:image前缀，添加它
+    if (base64Data.startsWith('data:image')) {
+      return base64Data;
+    }
+    // 假设返回的是纯Base64字符串，需要判断图片格式
+    // 默认使用jpeg格式
+    return `data:image/jpeg;base64,${base64Data}`;
+  } catch (error) {
+    console.error('获取图片失败：', error);
+    return '';
+  }
+};
+
+// 加载编辑时的图片预览
+const loadImagePreview = async (imageId: string, type: 'front' | 'back') => {
+  try {
+    const previewUrl = await getImagePreviewUrl(imageId);
+    if (previewUrl) {
+      if (type === 'front') {
+        idcardFrontList.value = [
+          {
+            uid: '-1',
+            name: '身份证正面',
+            status: 'done',
+            url: previewUrl,
+            imageId,
+          },
+        ];
+      } else {
+        idcardBackList.value = [
+          {
+            uid: '-2',
+            name: '身份证反面',
+            status: 'done',
+            url: previewUrl,
+            imageId,
+          },
+        ];
+      }
+    }
+  } catch (error) {
+    console.error('加载图片预览失败：', error);
+  }
+};
+
+// 在新窗口打开图片预览
+const openImagePreview = async (imageId: string) => {
+  try {
+    const previewUrl = await getImagePreviewUrlApi(imageId);
+    if (previewUrl) {
+      // 在新窗口打开blob URL
+      window.open(previewUrl, '_blank');
+    }
+  } catch (error) {
+    console.error('打开图片预览失败：', error);
+    message.error('打开图片预览失败');
+  }
+};
+
+// 处理身份证正面图片删除
+const handleIdcardFrontRemove = () => {
+  customerForm.idcard_front = '';
+  idcardFrontList.value = [];
+  return true;
+};
+
+// 处理身份证反面图片删除
+const handleIdcardBackRemove = () => {
+  customerForm.idcard_back = '';
+  idcardBackList.value = [];
+  return true;
 };
 
 // 客户表单数据
@@ -391,7 +527,7 @@ const handleAdd = () => {
 };
 
 // 编辑客户
-const handleEdit = (record: Customer) => {
+const handleEdit = async (record: Customer) => {
   modalTitle.value = '编辑客户';
   isEditing.value = true;
   currentCustomerId.value = record.t_customerid;
@@ -399,28 +535,18 @@ const handleEdit = (record: Customer) => {
   // 填充表单数据
   Object.assign(customerForm, createEmptyCustomer(), record);
 
-  // 设置图片上传（如果有图片URL）
-  idcardFrontList.value = record.idcard_front
-    ? [
-        {
-          uid: '-1',
-          name: '身份证正面',
-          status: 'done',
-          url: record.idcard_front,
-        },
-      ]
-    : [];
+  // 设置图片上传（如果有图片ID，通过接口获取Base64显示）
+  if (record.idcard_front) {
+    await loadImagePreview(record.idcard_front, 'front');
+  } else {
+    idcardFrontList.value = [];
+  }
 
-  idcardBackList.value = record.idcard_back
-    ? [
-        {
-          uid: '-2',
-          name: '身份证反面',
-          status: 'done',
-          url: record.idcard_back,
-        },
-      ]
-    : [];
+  if (record.idcard_back) {
+    await loadImagePreview(record.idcard_back, 'back');
+  } else {
+    idcardBackList.value = [];
+  }
 
   modalVisible.value = true;
 };
@@ -578,7 +704,7 @@ onMounted(() => {
           <DatePicker.RangePicker
             v-model:value="searchForm.checkin_time_range"
             :value-format="DATE_FORMAT"
-            placeholder="请选择入住时间段"
+            :placeholder="['开始日期', '结束日期']"
             style="width: 100%"
           />
         </div>
@@ -1128,10 +1254,19 @@ onMounted(() => {
               v-model:file-list="idcardFrontList"
               list-type="picture-card"
               :before-upload="beforeUpload"
+              :custom-request="handleIdcardFrontUpload"
+              :on-remove="handleIdcardFrontRemove"
+              :on-preview="(file: any) => {
+                if (file.imageId) {
+                  openImagePreview(file.imageId);
+                } else if (file.url) {
+                  window.open(file.url, '_blank');
+                }
+              }"
               :max-count="1"
               accept="image/*"
             >
-              <div>
+              <div v-if="idcardFrontList.length < 1">
                 <div class="ant-upload-text">上传</div>
               </div>
             </Upload>
@@ -1142,10 +1277,19 @@ onMounted(() => {
               v-model:file-list="idcardBackList"
               list-type="picture-card"
               :before-upload="beforeUpload"
+              :custom-request="handleIdcardBackUpload"
+              :on-remove="handleIdcardBackRemove"
+              :on-preview="(file: any) => {
+                if (file.imageId) {
+                  openImagePreview(file.imageId);
+                } else if (file.url) {
+                  window.open(file.url, '_blank');
+                }
+              }"
               :max-count="1"
               accept="image/*"
             >
-              <div>
+              <div v-if="idcardBackList.length < 1">
                 <div class="ant-upload-text">上传</div>
               </div>
             </Upload>

@@ -230,3 +230,142 @@ export function deleteCustomer(id: string) {
   });
 }
 
+// 图片上传和获取相关配置
+const imageApiBase =
+  import.meta.env.VITE_IMAGE_API_BASE || 'http://wshaiagent.natapp1.cc/api/Image';
+
+// 图片API使用的token（直接使用客户API的token）
+const imageApiToken = customersApiToken;
+
+export interface ImageUploadResponse {
+  success: boolean;
+  message: string;
+  data: string; // 图片ID
+  code: number;
+  timestamp: string;
+}
+
+export interface ImageGetResponse {
+  success: boolean;
+  message: string;
+  data: string; // Base64编码的图片数据
+  code: number;
+  timestamp: string;
+}
+
+/**
+ * 上传图片
+ * @param file 图片文件
+ * @returns 图片ID
+ */
+export async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${imageApiBase}/upload`, {
+    method: 'POST',
+    headers: {
+      accept: 'text/plain',
+      Authorization: `Bearer ${imageApiToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(
+      `图片上传失败(${response.status}): ${errorText || response.statusText}`,
+    );
+  }
+
+  const rawText = await response.text();
+  if (!rawText) {
+    throw new Error('图片上传失败：服务器返回空响应');
+  }
+
+  let payload: ImageUploadResponse;
+  try {
+    payload = JSON.parse(rawText) as ImageUploadResponse;
+  } catch (error) {
+    console.error('图片上传接口返回的原始内容：', rawText);
+    throw new Error('图片上传接口响应格式异常，无法解析为 JSON');
+  }
+
+  if (!payload.success || payload.code !== 200) {
+    throw new Error(payload.message || '图片上传失败');
+  }
+
+  return payload.data;
+}
+
+/**
+ * 通过ID获取图片（Base64编码）
+ * @param id 图片ID
+ * @returns Base64编码的图片数据
+ */
+export async function getImageById(id: string): Promise<string> {
+  const response = await fetch(`${imageApiBase}/get/${id}`, {
+    method: 'GET',
+    headers: {
+      accept: 'text/plain',
+      Authorization: `Bearer ${imageApiToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(
+      `获取图片失败(${response.status}): ${errorText || response.statusText}`,
+    );
+  }
+
+  const rawText = await response.text();
+  if (!rawText) {
+    throw new Error('获取图片失败：服务器返回空响应');
+  }
+
+  let payload: ImageGetResponse;
+  try {
+    payload = JSON.parse(rawText) as ImageGetResponse;
+  } catch (error) {
+    // 如果解析失败，可能是直接返回Base64字符串
+    if (response.ok && rawText.trim()) {
+      return rawText.trim();
+    }
+    console.error('获取图片接口返回的原始内容：', rawText);
+    throw new Error('获取图片接口响应格式异常，无法解析为 JSON');
+  }
+
+  if (!payload.success || payload.code !== 200) {
+    throw new Error(payload.message || '获取图片失败');
+  }
+
+  return payload.data;
+}
+
+/**
+ * 获取图片预览URL（带token，用于在新窗口打开）
+ * @param id 图片ID
+ * @returns 图片预览URL（blob URL）
+ */
+export async function getImagePreviewUrl(id: string): Promise<string> {
+  try {
+    const base64Data = await getImageById(id);
+    // 将Base64转换为blob URL，这样可以在新窗口打开
+    if (base64Data.startsWith('data:image')) {
+      // 如果已经是data URL格式，直接转换为blob
+      const response = await fetch(base64Data);
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    }
+    // 如果是纯Base64字符串，转换为blob URL
+    const base64String = `data:image/jpeg;base64,${base64Data}`;
+    const response = await fetch(base64String);
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error('获取图片预览URL失败：', error);
+    throw error;
+  }
+}
+
