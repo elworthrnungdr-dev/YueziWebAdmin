@@ -17,10 +17,10 @@ const customersApiBase = (() => {
     : `${trimmed}${customersSegment}`;
 })();
 
-const DEFAULT_CUSTOMER_TOKEN = 'f6PFTsqMrqcbRfOFWKEguscQvI0Z6i7JQ1s6I57CWvU=';
+const DEFAULT_TOKEN = 'f6PFTsqMrqcbRfOFWKEguscQvI0Z6i7JQ1s6I57CWvU=';
 
 const customersApiToken =
-  import.meta.env.VITE_CUSTOMERS_API_TOKEN ?? DEFAULT_CUSTOMER_TOKEN;
+  import.meta.env.VITE_CUSTOMERS_API_TOKEN ?? DEFAULT_TOKEN;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 type QueryValue = string | number | null | undefined;
@@ -188,10 +188,10 @@ async function customerRequest<T>(
     throw new Error('接口响应格式异常，无法解析为 JSON');
   }
 
-  if (!payload.success || payload.code !== 200) {
-    throw new Error(payload.message || '接口返回异常');
+  if (payload.success) {
+    return payload.data;
   }
-  return payload.data;
+  throw new Error(payload.message || '接口返回异常');
 }
 
 export function getCustomersPage(params: CustomerPageParams) {

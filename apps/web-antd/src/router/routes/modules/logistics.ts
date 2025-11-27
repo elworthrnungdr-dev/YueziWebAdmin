@@ -12,13 +12,22 @@ const routes: RouteRecordRaw[] = [
     name: 'Logistics',
     path: '/logistics',
     children: [
+      // {
+      //   name: 'LogisticsIndex',
+      //   path: '/logistics',
+      //   component: () => import('#/views/logistics/index.vue'),
+      //   meta: {
+      //     icon: 'lucide:map-pin',
+      //     title: $t('page.logistics.index'),
+      //   },
+      // },
       {
-        name: 'LogisticsIndex',
-        path: '/logistics',
-        component: () => import('#/views/logistics/index.vue'),
+        name: 'LogisticsRepair',
+        path: '/logistics/repair',
+        component: () => import('#/views/logistics/repair.vue'),
         meta: {
-          icon: 'lucide:map-pin',
-          title: $t('page.logistics.index'),
+          icon: 'lucide:wrench',
+          title: $t('page.logistics.repair'),
         },
       },
     ],
