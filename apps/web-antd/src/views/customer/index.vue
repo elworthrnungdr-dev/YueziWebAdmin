@@ -10,6 +10,7 @@ import {
   Modal,
   Pagination,
   Select,
+  Spin,
   Table,
   TableColumn,
   Upload,
@@ -230,6 +231,7 @@ const modalTitle = ref('新增客户');
 const isEditing = ref(false);
 const currentCustomerId = ref('');
 const submitLoading = ref(false);
+const detailLoading = ref(false);
 
 // 身份证图片上传
 const idcardFrontList = ref<any[]>([]);
@@ -531,24 +533,30 @@ const handleEdit = async (record: Customer) => {
   modalTitle.value = '编辑客户';
   isEditing.value = true;
   currentCustomerId.value = record.t_customerid;
-
-  // 填充表单数据
-  Object.assign(customerForm, createEmptyCustomer(), record);
-
-  // 设置图片上传（如果有图片ID，通过接口获取Base64显示）
-  if (record.idcard_front) {
-    await loadImagePreview(record.idcard_front, 'front');
-  } else {
-    idcardFrontList.value = [];
-  }
-
-  if (record.idcard_back) {
-    await loadImagePreview(record.idcard_back, 'back');
-  } else {
-    idcardBackList.value = [];
-  }
-
+  detailLoading.value = true;
   modalVisible.value = true;
+  try {
+    // 填充表单数据
+    Object.assign(customerForm, createEmptyCustomer(), record);
+
+    // 设置图片上传（如果有图片ID，通过接口获取Base64显示）
+    if (record.idcard_front) {
+      await loadImagePreview(record.idcard_front, 'front');
+    } else {
+      idcardFrontList.value = [];
+    }
+
+    if (record.idcard_back) {
+      await loadImagePreview(record.idcard_back, 'back');
+    } else {
+      idcardBackList.value = [];
+    }
+  } catch (error) {
+    console.error(error);
+    message.error(error instanceof Error ? error.message : '加载客户信息失败');
+  } finally {
+    detailLoading.value = false;
+  }
 };
 
 // 保存客户
@@ -850,8 +858,9 @@ onMounted(() => {
       :mask-closable="false"
       :keyboard="false"
     >
-      <div class="max-h-[70vh] overflow-y-auto">
-        <div class="grid grid-cols-2 gap-4 pb-20">
+      <Spin :spinning="detailLoading" tip="正在加载客户信息...">
+        <div class="max-h-[70vh] overflow-y-auto">
+          <div class="grid grid-cols-2 gap-4 pb-20">
           <!-- 基础信息 -->
           <div class="col-span-2">
             <h3 class="mb-4 text-lg font-semibold">基础信息</h3>
@@ -1302,8 +1311,9 @@ onMounted(() => {
               :rows="3"
             />
           </div>
+          </div>
         </div>
-      </div>
+      </Spin>
 
       <!-- 操作按钮 -->
       <div
