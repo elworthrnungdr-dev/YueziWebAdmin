@@ -113,6 +113,7 @@ function handleClick() {
     return;
   }
 
+  
   rootMenu?.handleSubMenuClick({
     active: active.value,
     parentPaths: parentPaths.value,

@@ -16,9 +16,6 @@ import { message } from 'ant-design-vue';
 
 import { useAuthStore } from '#/store';
 
-import { refreshTokenApi } from './core';
-import type { AuthApi } from './core/auth';
-
 // 固定使用真实接口地址，无论开发环境还是正式环境
 const apiURL = 'http://23.141.172.216:5201';
 
@@ -47,41 +44,11 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   }
 
   /**
-   * 刷新token逻辑
+   * 刷新token逻辑（暂时停用，仅为满足类型要求，不会真正调用刷新接口）
    */
   async function doRefreshToken() {
-    const accessStore = useAccessStore();
-    const refreshToken = accessStore.refreshToken;
-    
-    if (!refreshToken) {
-      throw new Error('Refresh token is missing');
-    }
-    
-    try {
-      const resp = await refreshTokenApi(refreshToken);
-      // baseRequestClient返回的是axios响应对象，需要访问response.data
-      // 由于baseRequestClient没有响应拦截器，resp.data就是完整的响应对象
-      const responseData = (resp.data as unknown) as AuthApi.RefreshTokenResponse;
-      
-      // 检查刷新是否成功
-      if (!responseData.success) {
-        throw new Error(responseData.message || '刷新token失败');
-      }
-      
-      const { token: newToken, refreshToken: newRefreshToken } = responseData.data;
-      
-      // 保存新的token和refreshToken
-      accessStore.setAccessToken(newToken);
-      accessStore.setRefreshToken(newRefreshToken);
-      
-      return newToken;
-    } catch (error) {
-      // 刷新token失败，清除token并提示重新登录
-      accessStore.setAccessToken(null);
-      accessStore.setRefreshToken(null);
-      message.error('登录已过期，请重新登录');
-      throw error;
-    }
+    // 目前不启用刷新 Token，直接抛出错误，让认证逻辑走重新登录流程
+    throw new Error('Refresh token is disabled');
   }
 
   function formatToken(token: null | string) {
@@ -125,12 +92,30 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   client.addResponseInterceptor(
     errorMessageResponseInterceptor((msg: string, error) => {
       // 这里可以根据业务进行定制,你可以拿到 error 内的信息进行定制化处理，根据不同的 code 做不同的提示，而不是直接使用 message.error 提示 msg
-      // 当前mock接口返回的错误字段是 error 或者 message
+      // 当前后端返回格式：{ success: false, message: string, code: number, ... }
       const responseData = error?.response?.data ?? {};
       const errorMessage = responseData?.error ?? responseData?.message ?? '';
-      // 如果没有错误信息，则会根据状态码进行提示
+      const businessCode = responseData?.code;
+
+      // 如果后端用业务码 401 表示“未登录或登录已过期”，这里统一做登出并回到登录页
+      if (businessCode === 401) {
+        const accessStore = useAccessStore();
+        const authStore = useAuthStore();
+
+        accessStore.setAccessToken(null);
+        accessStore.setRefreshToken(null);
+
+        // 提示后跳转登录页
+        message.error(errorMessage || '登录已过期，请重新登录');
+        // 注意：这里不能直接 await，否则可能影响拦截器链路，调用后由路由守卫处理跳转
+        authStore.logout().catch(() => {});
+        return Promise.reject(error);
+      }
+
+      // 其它错误，保持原来的提示逻辑
       message.error(errorMessage || msg);
-    }),
+      return Promise.reject(error);
+    }) as any,
   );
 
   return client;

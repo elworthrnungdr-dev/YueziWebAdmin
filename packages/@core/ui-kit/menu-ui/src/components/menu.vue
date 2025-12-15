@@ -295,54 +295,15 @@ function openMenu(path: string, parentPaths: string[]) {
   if (openedMenus.value.includes(path)) {
     return;
   }
-  // 手风琴模式菜单
+  // 手风琴模式菜单：只展开当前点击的这一栏，其它全部关闭
   if (props.accordion) {
-    const activeParentPaths = getActivePaths();
-    if (activeParentPaths.includes(path)) {
-      parentPaths = activeParentPaths;
-    }
-    
-    // 获取当前要展开菜单的信息
-    const currentMenu = subMenus.value[path];
-    // 获取当前菜单的 groupId（同级菜单组ID）
-    const currentGroupId = currentMenu?.groupId;
-    
-    // 手风琴模式：只保留当前菜单的父级路径链，关闭所有其他菜单
-    // 这样当展开一个栏目时，其他所有栏目都会关闭
-    openedMenus.value = openedMenus.value.filter((openedPath: string) => {
-      // 如果当前菜单在 parentPaths 中（是父级路径），保留它
-      // 这样可以保持当前菜单的父级路径链展开
-      if (parentPaths.includes(openedPath)) {
-        return true;
-      }
-      
-      // 不在 parentPaths 中的菜单都应该被关闭
-      // 但是需要检查是否是静态菜单（没有 groupId），静态菜单之间不互相影响
-      const openedMenu = subMenus.value[openedPath];
-      
-      // 如果当前菜单有 groupId（动态菜单）
-      if (currentGroupId !== undefined) {
-        // 如果找不到已打开菜单的信息，可能是静态菜单，保留它（静态菜单不受动态菜单影响）
-        if (!openedMenu) {
-          return true;
-        }
-        // 如果已打开菜单的 groupId 与当前菜单不同，关闭它（不同菜单组/栏目）
-        // 这是关键：不同 groupId 的菜单都应该关闭
-        if (openedMenu.groupId !== currentGroupId) {
-          return false;
-        }
-        // 如果 groupId 相同，但是不在 parentPaths 中，说明是同级菜单，关闭它
-        // 只保留父级路径链上的菜单
-        return false;
-      }
-      
-      // 如果 currentGroupId 为 undefined，可能是静态菜单
-      // 对于静态菜单，只保留父级路径链上的菜单，关闭所有其他菜单
-      // 如果已打开菜单不在 parentPaths 中，关闭它
-      return false;
-    });
+    // 这里不再使用 parentPaths，而是只保留当前点击的父栏目 path
+    // 这样可以确保：点击哪个父栏目，就只有哪个父栏目带 is-opened，其它全部关闭
+    openedMenus.value = [path];
+  } else {
+    // 非手风琴模式，保留原有行为：在已打开列表中追加
+    openedMenus.value.push(path);
   }
-  openedMenus.value.push(path);
   emit('open', path, parentPaths);
 }
 

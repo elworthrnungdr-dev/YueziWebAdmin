@@ -83,15 +83,6 @@ export async function loginApi(data: AuthApi.LoginParams) {
 }
 
 /**
- * 刷新accessToken
- */
-export async function refreshTokenApi(refreshToken: string) {
-  return baseRequestClient.post<AuthApi.RefreshTokenResponse>('/api/Account/refresh-token', {
-    refreshToken,
-  });
-}
-
-/**
  * 退出登录
  */
 export async function logoutApi() {

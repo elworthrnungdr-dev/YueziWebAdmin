@@ -47,6 +47,9 @@ export interface MenuResponse {
   timestamp?: string;
 }
 
+// 说明：原先这里有一个 getAutoIconByName，根据名称自动匹配图标。
+// 但现在图标完全由后端控制，不再在前端做自动匹配，因此该能力已移除。
+
 /**
  * 将组件名转换为组件路径
  * 根据后端返回的 component 和 path 字段，转换为前端需要的组件路径格式
@@ -127,13 +130,27 @@ function transformMenuToRoute(
 
   // 使用转换后的字段（如果存在）或原始字段
   const menuName = menu.name || menu.menuName;
-  const menuPath = menu.path || '';
+  // 路径处理规则：
+  // - 目录(M)：后端有时会给 path = '/Layout' 或 空，这种对所有父栏目是一样的，
+  //   会导致所有父栏目 path 相同，从而共享展开状态；这里强制改成基于 id 的唯一路径
+  // - 菜单(C)：优先使用后端真实 path；如果为空，再退回到基于 id 的唯一路径
+  let menuPath = menu.path || '';
+  if (menu.menuType === 'M') {
+    if (!menuPath || menuPath === '/Layout') {
+      menuPath = `/__menu-${menu.id}`;
+    }
+  } else {
+    if (!menuPath) {
+      menuPath = `/__menu-${menu.id}`;
+    }
+  }
   // 生成唯一的路由名称
   const uniqueRouteName = generateUniqueRouteName(menuName, menuPath, parentPath);
   // 转换组件路径
   const menuComponent = normalizeComponentPath(menu.component, menu.path);
-  const menuIcon = menu.meta?.icon || menu.icon || undefined;
   const menuTitle = menu.meta?.title || menuName;
+  // 图标只使用后端提供的字段，不再根据名称自动匹配
+  const menuIcon = menu.meta?.icon ?? menu.icon ?? undefined;
 
   // 构建父级路径数组
   const parents: string[] = parentPath ? [parentPath] : [];
