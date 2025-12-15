@@ -7,8 +7,10 @@ import { computed, onMounted, ref } from 'vue';
 
 import { ProfileBaseSetting } from '@vben/common-ui';
 
-import { getUserInfoApi } from '#/api';
+// import { getUserInfoApi } from '#/api';
+import { useUserStore } from '@vben/stores';
 
+const userStore = useUserStore();
 const profileBaseSettingRef = ref();
 
 const MOCK_ROLES_OPTIONS: BasicOption[] = [
@@ -55,9 +57,13 @@ const formSchema = computed((): VbenFormSchema[] => {
   ];
 });
 
-onMounted(async () => {
-  const data = await getUserInfoApi();
-  profileBaseSettingRef.value.getFormApi().setValues(data);
+onMounted(() => {
+  // 使用登录时保存的用户信息，不再调用接口
+  // const data = await getUserInfoApi();
+  const data = userStore.userInfo;
+  if (data) {
+    profileBaseSettingRef.value.getFormApi().setValues(data);
+  }
 });
 </script>
 <template>

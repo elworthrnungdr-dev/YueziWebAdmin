@@ -54,6 +54,7 @@ const item: MenuItemRegistered = reactive({
   active,
   parentPaths: parentPaths.value,
   path: props.path || '',
+  groupId: props.groupId,
 });
 
 /**

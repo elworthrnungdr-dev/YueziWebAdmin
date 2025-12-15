@@ -84,7 +84,27 @@ function generateMenus(
   menus = menus.sort((a, b) => (a?.order ?? 999) - (b?.order ?? 999));
 
   // 过滤掉隐藏的菜单项
-  return filterTree(menus, (menu) => !!menu.show);
+  menus = filterTree(menus, (menu) => !!menu.show);
+
+  // 为每个顶级菜单分配唯一的 groupId，并传递给所有子菜单
+  // 统计顶级菜单数量（没有 parent 或 parent 为空/undefined 的菜单）
+  const topLevelMenus = menus.filter((menu) => {
+    return !menu.parent || menu.parent === '' || menu.parent === undefined;
+  });
+  topLevelMenus.forEach((menu, index) => {
+    const groupId = `group-${index}`;
+    
+    // 递归设置 groupId
+    const setGroupId = (m: MenuRecordRaw, gId: string | number) => {
+      m.groupId = gId;
+      if (m.children && m.children.length > 0) {
+        m.children.forEach((child) => setGroupId(child, gId));
+      }
+    };
+    setGroupId(menu, groupId);
+  });
+
+  return menus;
 }
 
 export { generateMenus };

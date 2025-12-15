@@ -1,21 +1,11 @@
 import type { UserInfo } from '@vben/types';
 
-/**
- * TODO: 后端 /api/user/info 尚未实现，临时返回固定的用户信息，
- * 待接口准备好后，可恢复为真实接口请求。
- */
-const mockUserInfo: UserInfo = {
-  avatar:
-    'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-  realName: '管理员',
-  roles: ['admin'],
-  userId: '1',
-  username: 'admin',
-  desc: 'Temporary mock user until /api/user/info is ready',
-  //homePath: '/dashboard/analytics',
-  token: '',
-};
+import { requestClient } from '#/api/request';
 
-export async function getUserInfoApi(): Promise<UserInfo> {
-  return Promise.resolve(mockUserInfo);
-}
+/**
+ * 获取用户信息
+ * @deprecated 已废弃，登录接口已返回用户信息，不再需要此接口
+ */
+// export async function getUserInfoApi() {
+//   return requestClient.get<UserInfo>('/user/info');
+// }

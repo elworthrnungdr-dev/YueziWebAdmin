@@ -41,6 +41,7 @@ const hasChildren = computed(() => {
     :badge-variants="menu.badgeVariants"
     :icon="menu.icon"
     :path="menu.path"
+    :group-id="menu.groupId"
   >
     <template #title>
       <span>{{ menu.name }}</span>
@@ -52,6 +53,7 @@ const hasChildren = computed(() => {
     :active-icon="menu.activeIcon"
     :icon="menu.icon"
     :path="menu.path"
+    :group-id="menu.groupId"
   >
     <template #content>
       <MenuBadge

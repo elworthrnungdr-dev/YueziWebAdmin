@@ -71,6 +71,11 @@ interface MenuRecordRaw extends MenuRecordBadgeRaw {
    * @default true
    */
   show?: boolean;
+  /**
+   * 同级菜单组ID，用于手风琴模式判断同级菜单
+   * 同一父级下的菜单具有相同的 groupId
+   */
+  groupId?: string | number;
 }
 
 export type { ExRouteRecordRaw, MenuRecordBadgeRaw, MenuRecordRaw };

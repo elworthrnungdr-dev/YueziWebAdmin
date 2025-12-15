@@ -173,10 +173,22 @@ const menuIcon = computed(() =>
   active.value ? props.activeIcon || props.icon : props.icon,
 );
 
+// 从 parentPaths 推断 parent（如果 parentPaths.length > 1，则 parent 是 parentPaths[parentPaths.length - 2]）
+// 如果 parentPaths 长度 === 1，说明是顶级菜单，没有父级
+const menuParent = computed(() => {
+  return parentPaths.value.length > 1 
+    ? parentPaths.value[parentPaths.value.length - 2] 
+    : undefined;
+});
+
 const item = reactive({
   active,
   parentPaths,
   path: props.path,
+  get parent() {
+    return menuParent.value;
+  },
+  groupId: props.groupId,
 });
 
 onMounted(() => {

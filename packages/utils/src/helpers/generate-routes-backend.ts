@@ -62,8 +62,11 @@ function convertRoutes(
       if (pageMap[pageKey]) {
         route.component = pageMap[pageKey];
       } else {
-        console.error(`route component is invalid: ${pageKey}`, route);
-        route.component = pageMap['/_core/fallback/not-found.vue'];
+        // 组件不存在时，静默映射到默认页面（coming-soon）
+        // 优先使用 coming-soon，如果不存在则使用 not-found
+        route.component =
+          pageMap['/_core/fallback/coming-soon.vue'] ||
+          pageMap['/_core/fallback/not-found.vue'];
       }
     }
 

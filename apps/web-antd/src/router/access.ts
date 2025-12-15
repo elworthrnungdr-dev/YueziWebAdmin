@@ -19,10 +19,13 @@ async function generateAccess(options: GenerateMenuAndRoutesOptions) {
 
   const layoutMap: ComponentRecordType = {
     BasicLayout,
+    Layout: BasicLayout, // 后端返回的 Layout 映射到 BasicLayout
     IFrameView,
   };
 
-  return await generateAccessible(preferences.app.accessMode, {
+  // 使用 mixed 模式，合并前端静态路由（包括 dashboard）和后端菜单路由
+  // 这样确保 dashboard 菜单始终显示，不依赖后端菜单
+  return await generateAccessible('mixed', {
     ...options,
     fetchMenuListAsync: async () => {
       message.loading({

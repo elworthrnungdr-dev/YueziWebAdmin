@@ -72,6 +72,10 @@ interface SubMenuProps extends MenuRecordBadgeRaw {
    * @zh_CN submenu 名称
    */
   path: string;
+  /**
+   * @zh_CN 同级菜单组ID，用于手风琴模式判断同级菜单
+   */
+  groupId?: string | number;
 }
 
 interface MenuItemProps extends MenuRecordBadgeRaw {
@@ -91,12 +95,18 @@ interface MenuItemProps extends MenuRecordBadgeRaw {
    * @zh_CN menuitem 名称
    */
   path: string;
+  /**
+   * @zh_CN 同级菜单组ID，用于手风琴模式判断同级菜单
+   */
+  groupId?: string | number;
 }
 
 interface MenuItemRegistered {
   active: boolean;
   parentPaths: string[];
   path: string;
+  parent?: string; // 菜单数据的 parent 字段，用于判断同级菜单
+  groupId?: string | number; // 同级菜单组ID，用于手风琴模式判断同级菜单
 }
 
 interface MenuItemClicked {

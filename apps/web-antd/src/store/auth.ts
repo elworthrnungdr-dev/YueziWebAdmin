@@ -10,7 +10,8 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import { getAccessCodesApi, getUserInfoApi, loginApi, logoutApi } from '#/api';
+// import { getUserInfoApi, loginApi, logoutApi } from '#/api';
+import { loginApi, logoutApi } from '#/api';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -33,41 +34,124 @@ export const useAuthStore = defineStore('auth', () => {
     let userInfo: null | UserInfo = null;
     try {
       loginLoading.value = true;
-      const { accessToken } = await loginApi(params);
+      // 确保参数格式正确：branchId, userName, password
+      const loginParams = {
+        branchId: params.branchId,
+        userName: params.username || params.userName, // 兼容username和userName
+        password: params.password,
+      };
+      
+      // 验证必填参数
+      if (!loginParams.branchId) {
+        notification.error({
+          message: '登录失败',
+          description: '请输入门店编号',
+          duration: 3,
+        });
+        return {
+          userInfo: null,
+        };
+      }
+      
+      if (!loginParams.userName) {
+        notification.error({
+          message: '登录失败',
+          description: '请输入用户名',
+          duration: 3,
+        });
+        return {
+          userInfo: null,
+        };
+      }
+      
+      if (!loginParams.password) {
+        notification.error({
+          message: '登录失败',
+          description: '请输入密码',
+          duration: 3,
+        });
+        return {
+          userInfo: null,
+        };
+      }
+      
+      const response = await loginApi(loginParams);
+      
+      // baseRequestClient返回的是axios响应对象，需要访问response.data
+      // response.data的类型是LoginResponse
+      const responseData = (response.data as unknown) as {
+        success: boolean;
+        message: string;
+        data: {
+          token: string;
+          refreshToken: string;
+          user: any;
+        };
+      };
 
-      // 如果成功获取到 accessToken
-      if (accessToken) {
-        accessStore.setAccessToken(accessToken);
-
-        // 获取用户信息并存储到 accessStore 中
-        const [fetchUserInfoResult, accessCodes] = await Promise.all([
-          fetchUserInfo(),
-          getAccessCodesApi(),
-        ]);
-
-        userInfo = fetchUserInfoResult;
-
-        userStore.setUserInfo(userInfo);
-        accessStore.setAccessCodes(accessCodes);
-
-        if (accessStore.loginExpired) {
-          accessStore.setLoginExpired(false);
-        } else {
-          onSuccess
-            ? await onSuccess?.()
-            : await router.push(
-                userInfo.homePath || preferences.app.defaultHomePath,
-              );
-        }
-
-        if (userInfo?.realName) {
-          notification.success({
-            description: `${$t('authentication.loginSuccessDesc')}:${userInfo?.realName}`,
+      // 检查登录是否成功
+      if (!responseData.success) {
+        // 如果登录失败，显示错误信息
+        if (responseData.message) {
+          notification.error({
+            message: '登录失败',
+            description: responseData.message,
             duration: 3,
-            message: $t('authentication.loginSuccess'),
           });
         }
+        return {
+          userInfo: null,
+        };
       }
+
+      // 保存token和refreshToken
+      const { token, refreshToken, user } = responseData.data;
+      accessStore.setAccessToken(token);
+      accessStore.setRefreshToken(refreshToken);
+
+      // 将返回的用户信息转换为UserInfo格式
+      const mappedUserInfo: UserInfo = {
+        userId: user.id,
+        username: user.employeeNumber,
+        realName: user.employeesName,
+        avatar: user.avatarUrl || '',
+        desc: user.position || '',
+        roles: user.roles || [],
+        token: token,
+        homePath: preferences.app.defaultHomePath, // 使用默认首页路径
+      };
+
+      userInfo = mappedUserInfo;
+      userStore.setUserInfo(mappedUserInfo);
+
+      if (accessStore.loginExpired) {
+        accessStore.setLoginExpired(false);
+      } else {
+        if (onSuccess) {
+          await onSuccess?.();
+        } else {
+          // 登录成功后，先跳转到默认首页（通常是 /dashboard/workspace）
+          // 路由守卫会异步加载菜单，不阻塞页面显示
+          const defaultPath = mappedUserInfo.homePath || preferences.app.defaultHomePath;
+          await router.push(defaultPath);
+        }
+      }
+
+      if (mappedUserInfo?.realName) {
+        notification.success({
+          description: `${$t('authentication.loginSuccessDesc')}:${mappedUserInfo?.realName}`,
+          duration: 3,
+          message: $t('authentication.loginSuccess'),
+        });
+      }
+    } catch (error: any) {
+      // 处理登录异常
+      const errorMessage = error?.response?.data?.message || error?.message || '登录失败，请重试';
+      notification.error({
+        message: '登录失败',
+        description: errorMessage,
+        duration: 3,
+      });
     } finally {
       loginLoading.value = false;
     }
@@ -98,9 +182,12 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUserInfo() {
+    // 登录接口已返回用户信息，直接使用 userStore 中的用户信息
+    // 如果 userStore 中没有用户信息，返回 null
     let userInfo: null | UserInfo = null;
-    userInfo = await getUserInfoApi();
-    userStore.setUserInfo(userInfo);
+    // userInfo = await getUserInfoApi();
+    userInfo = userStore.userInfo;
+    // userStore.setUserInfo(userInfo);
     return userInfo;
   }
 

@@ -47,6 +47,15 @@ const formSchema = computed((): VbenFormSchema[] => {
     {
       component: 'VbenInput',
       componentProps: {
+        placeholder: '请输入门店编号',
+      },
+      fieldName: 'branchId',
+      label: '门店编号',
+      rules: z.string().min(1, { message: '请输入门店编号' }),
+    },
+    {
+      component: 'VbenInput',
+      componentProps: {
         placeholder: $t('authentication.usernameTip'),
       },
       dependencies: {
