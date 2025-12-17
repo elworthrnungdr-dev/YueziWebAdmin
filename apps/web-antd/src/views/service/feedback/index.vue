@@ -25,11 +25,11 @@ import {
   Space,
   Table,
   Modal,
-  Popconfirm,
   message,
 } from 'ant-design-vue';
 import type { FormInstance } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import { h } from 'vue';
 
 const loading = ref(false);
 const dataSource = ref<CustomerFeedbackItem[]>([]);
@@ -365,14 +365,38 @@ async function handleSubmit() {
   }
 }
 
-async function handleDelete(record: CustomerFeedbackItem) {
-  try {
-    await deleteCustomerFeedbackApi(record.id);
-    message.success('删除客户反馈成功');
-    fetchList();
-  } catch {
-    // 由全局拦截器处理错误
-  }
+function handleDelete(record: CustomerFeedbackItem) {
+  Modal.confirm({
+    title: '确认删除',
+    content: h('div', { style: { fontSize: '14px', lineHeight: '1.6' } }, [
+      h('p', {
+        style: { marginBottom: '8px', color: '#ff4d4f', fontWeight: 500 },
+      }, '⚠️ 警告'),
+      h('p', { style: { margin: 0 } }, '确定要删除该客户反馈吗？'),
+      h(
+        'p',
+        { style: { margin: '4px 0 0', color: '#8c8c8c', fontSize: '12px' } },
+        '此操作不可恢复，请谨慎操作。',
+      ),
+    ]),
+    okText: '确定删除',
+    cancelText: '取消',
+    okType: 'danger',
+    centered: true,
+    width: 420,
+    onOk: async () => {
+      try {
+        loading.value = true;
+        await deleteCustomerFeedbackApi(record.id);
+        message.success('删除客户反馈成功');
+        fetchList();
+      } catch {
+        throw new Error();
+      } finally {
+        loading.value = false;
+      }
+    },
+  });
 }
 
 // 处理/回复弹窗
@@ -571,16 +595,15 @@ async function handleRespondSubmit() {
               >
                 更新
               </Button>
-              <Popconfirm
-                title="确定删除该客户反馈吗？"
-                ok-text="删除"
-                cancel-text="取消"
-                @confirm="handleDelete(record)"
+              <Button
+                type="link"
+                danger
+                size="small"
+                class="cursor-pointer"
+                @click="handleDelete(record)"
               >
-                <Button type="link" danger size="small" class="cursor-pointer">
-                  删除
-                </Button>
-              </Popconfirm>
+                删除
+              </Button>
             </Space>
           </div>
         </template>

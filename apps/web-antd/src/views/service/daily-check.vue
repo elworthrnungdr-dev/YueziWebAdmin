@@ -6,4 +6,3 @@ import DailyCheckView from './daily-check/index.vue';
   <DailyCheckView />
 </template>
 
-

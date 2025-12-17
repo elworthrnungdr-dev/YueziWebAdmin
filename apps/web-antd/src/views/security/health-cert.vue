@@ -9,4 +9,3 @@ import Index from './health-cert/index.vue';
 
 
 
-

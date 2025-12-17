@@ -164,4 +164,3 @@ export async function deleteDailyCheckApi(id: string): Promise<void> {
   await requestClient.delete(`/api/DailyVisirecord/${id}`);
 }
 
-

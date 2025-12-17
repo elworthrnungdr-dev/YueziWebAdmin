@@ -6,4 +6,3 @@ import VisitorView from './visitor/index.vue';
   <VisitorView />
 </template>
 
-

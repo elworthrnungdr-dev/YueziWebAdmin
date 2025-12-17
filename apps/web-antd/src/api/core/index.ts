@@ -24,3 +24,4 @@ export * from './securityPatrol';
 export * from './frontdeskAppointment';
 export * from './customerFeedback';
 export * from './dailyCheck';
+export * from './mealSample';

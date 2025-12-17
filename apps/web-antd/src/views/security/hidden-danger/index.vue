@@ -23,11 +23,11 @@ import {
   Space,
   Table,
   Modal,
-  Popconfirm,
   message,
 } from 'ant-design-vue';
 import type { FormInstance } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import { h } from 'vue';
 
 const loading = ref(false);
 const dataSource = ref<SafetyHazardReportItem[]>([]);
@@ -355,14 +355,38 @@ async function handleSubmit() {
   }
 }
 
-async function handleDelete(record: SafetyHazardReportItem) {
-  try {
-    await deleteSafetyHazardReportApi(record.id);
-    message.success('删除隐患上报成功');
-    fetchList();
-  } catch (error: any) {
-    // 删除失败错误同样由全局拦截器提示，这里不再额外处理
-  }
+function handleDelete(record: SafetyHazardReportItem) {
+  Modal.confirm({
+    title: '确认删除',
+    content: h('div', { style: { fontSize: '14px', lineHeight: '1.6' } }, [
+      h('p', {
+        style: { marginBottom: '8px', color: '#ff4d4f', fontWeight: 500 },
+      }, '⚠️ 警告'),
+      h('p', { style: { margin: 0 } }, '确定要删除该隐患上报记录吗？'),
+      h(
+        'p',
+        { style: { margin: '4px 0 0', color: '#8c8c8c', fontSize: '12px' } },
+        '此操作不可恢复，请谨慎操作。',
+      ),
+    ]),
+    okText: '确定删除',
+    cancelText: '取消',
+    okType: 'danger',
+    centered: true,
+    width: 420,
+    onOk: async () => {
+      try {
+        loading.value = true;
+        await deleteSafetyHazardReportApi(record.id);
+        message.success('删除隐患上报成功');
+        fetchList();
+      } catch (error: any) {
+        throw error;
+      } finally {
+        loading.value = false;
+      }
+    },
+  });
 }
 
 onMounted(() => {
@@ -503,16 +527,15 @@ onMounted(() => {
               >
                 更新
               </Button>
-              <Popconfirm
-                title="确定删除该隐患上报记录吗？"
-                ok-text="删除"
-                cancel-text="取消"
-                @confirm="handleDelete(record)"
+              <Button
+                type="link"
+                danger
+                size="small"
+                class="cursor-pointer"
+                @click="handleDelete(record)"
               >
-                <Button type="link" danger size="small" class="cursor-pointer">
-                  删除
-                </Button>
-              </Popconfirm>
+                删除
+              </Button>
             </Space>
           </div>
         </template>

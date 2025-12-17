@@ -21,7 +21,6 @@ import {
   InputNumber,
   message,
   Modal,
-  Popconfirm,
   Select,
   Space,
   Table,
@@ -29,6 +28,7 @@ import {
 import type { FormInstance } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import { h } from 'vue';
 
 // 宝宝性别选项
 const babyGenderOptions = [
@@ -432,19 +432,44 @@ async function handleSubmit() {
   }
 }
 
-async function handleDelete(record: BabyItem) {
-  try {
-    await deleteBabyApi(record.id);
-    message.success('删除宝宝信息成功');
-    fetchList();
-  } catch (error: any) {
-    const errMsg =
-      error?.response?.data?.message ||
-      error?.data?.message ||
-      error?.message ||
-      '删除宝宝信息失败';
-    message.error(errMsg);
-  }
+function handleDelete(record: BabyItem) {
+  Modal.confirm({
+    title: '确认删除',
+    content: h('div', { style: { fontSize: '14px', lineHeight: '1.6' } }, [
+      h('p', {
+        style: { marginBottom: '8px', color: '#ff4d4f', fontWeight: 500 },
+      }, '⚠️ 警告'),
+      h('p', { style: { margin: 0 } }, '确定要删除该宝宝信息吗？'),
+      h(
+        'p',
+        { style: { margin: '4px 0 0', color: '#8c8c8c', fontSize: '12px' } },
+        '此操作不可恢复，请谨慎操作。',
+      ),
+    ]),
+    okText: '确定删除',
+    cancelText: '取消',
+    okType: 'danger',
+    centered: true,
+    width: 420,
+    onOk: async () => {
+      try {
+        loading.value = true;
+        await deleteBabyApi(record.id);
+        message.success('删除宝宝信息成功');
+        fetchList();
+      } catch (error: any) {
+        const errMsg =
+          error?.response?.data?.message ||
+          error?.data?.message ||
+          error?.message ||
+          '删除宝宝信息失败';
+        message.error(errMsg);
+        throw error; // 阻止 Modal 自动关闭
+      } finally {
+        loading.value = false;
+      }
+    },
+  });
 }
 
 onMounted(fetchList);
@@ -580,16 +605,15 @@ onMounted(fetchList);
               >
                 更新
               </Button>
-              <Popconfirm
-                title="确定删除该宝宝信息吗？"
-                ok-text="删除"
-                cancel-text="取消"
-                @confirm="handleDelete(record)"
+              <Button
+                type="link"
+                danger
+                size="small"
+                class="cursor-pointer"
+                @click="handleDelete(record)"
               >
-                <Button type="link" danger size="small" class="cursor-pointer">
-                  删除
-                </Button>
-              </Popconfirm>
+                删除
+              </Button>
             </Space>
           </div>
         </template>
