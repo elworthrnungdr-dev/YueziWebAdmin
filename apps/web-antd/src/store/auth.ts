@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
       
       const response = await loginApi(loginParams);
-      
+
       // baseRequestClient返回的是axios响应对象，需要访问response.data
       // response.data的类型是LoginResponse
       const responseData = (response.data as unknown) as {
@@ -124,8 +124,8 @@ export const useAuthStore = defineStore('auth', () => {
       userInfo = mappedUserInfo;
       userStore.setUserInfo(mappedUserInfo);
 
-      if (accessStore.loginExpired) {
-        accessStore.setLoginExpired(false);
+        if (accessStore.loginExpired) {
+          accessStore.setLoginExpired(false);
       } else {
         if (onSuccess) {
           await onSuccess?.();
@@ -135,15 +135,15 @@ export const useAuthStore = defineStore('auth', () => {
           const defaultPath = mappedUserInfo.homePath || preferences.app.defaultHomePath;
           await router.push(defaultPath);
         }
-      }
+        }
 
       if (mappedUserInfo?.realName) {
-        notification.success({
+          notification.success({
           description: `${$t('authentication.loginSuccessDesc')}:${mappedUserInfo?.realName}`,
-          duration: 3,
-          message: $t('authentication.loginSuccess'),
-        });
-      }
+            duration: 3,
+            message: $t('authentication.loginSuccess'),
+          });
+        }
     } catch (error: any) {
       // 处理登录异常
       const errorMessage = error?.response?.data?.message || error?.message || '登录失败，请重试';

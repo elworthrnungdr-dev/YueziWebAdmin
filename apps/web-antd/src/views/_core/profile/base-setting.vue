@@ -62,7 +62,7 @@ onMounted(() => {
   // const data = await getUserInfoApi();
   const data = userStore.userInfo;
   if (data) {
-    profileBaseSettingRef.value.getFormApi().setValues(data);
+  profileBaseSettingRef.value.getFormApi().setValues(data);
   }
 });
 </script>

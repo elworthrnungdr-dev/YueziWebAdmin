@@ -12,10 +12,15 @@ onMounted(() => {
   renderEcharts({
     grid: {
       bottom: 0,
-      containLabel: true,
       left: '1%',
       right: '1%',
       top: '2 %',
+      outerBounds: {
+        left: true,
+        right: true,
+        top: true,
+        bottom: true,
+      },
     },
     series: [
       {

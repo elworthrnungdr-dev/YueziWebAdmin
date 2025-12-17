@@ -67,6 +67,22 @@ export namespace AuthApi {
     code: number;
     timestamp: string;
   }
+
+  /** 修改密码接口参数 */
+  export interface ChangePasswordParams {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }
+
+  /** 修改密码接口响应 */
+  export interface ChangePasswordResponse {
+    success: boolean;
+    message: string;
+    data?: any;
+    code: number;
+    timestamp: string;
+  }
 }
 
 /**
@@ -86,8 +102,23 @@ export async function loginApi(data: AuthApi.LoginParams) {
  * 退出登录
  */
 export async function logoutApi() {
-  return baseRequestClient.post('/auth/logout', {
+  return baseRequestClient.post('/api/Account/logout', {
     withCredentials: true,
   });
+}
+
+/**
+ * 修改密码
+ */
+export async function changePasswordApi(data: AuthApi.ChangePasswordParams) {
+  return baseRequestClient.post<AuthApi.ChangePasswordResponse>(
+    '/api/Account/change-password',
+    data,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
 }
 

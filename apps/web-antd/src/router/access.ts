@@ -32,7 +32,17 @@ async function generateAccess(options: GenerateMenuAndRoutesOptions) {
         content: `${$t('common.loadingMenu')}...`,
         duration: 1.5,
       });
-      return await getAllMenusApi();
+      try {
+        return await getAllMenusApi();
+      } catch (error: any) {
+        // 菜单接口超时或异常时，不阻塞路由启动，返回空菜单并给出提示
+        const errMsg =
+          error?.response?.data?.message ||
+          error?.message ||
+          $t('common.requestError');
+        message.error(errMsg);
+        return [];
+      }
     },
     // 可以指定没有权限跳转403页面
     forbiddenComponent,

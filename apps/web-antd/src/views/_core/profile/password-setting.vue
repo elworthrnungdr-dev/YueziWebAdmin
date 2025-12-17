@@ -7,6 +7,8 @@ import { ProfilePasswordSetting, z } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
+import { changePasswordApi } from '#/api';
+
 const profilePasswordSettingRef = ref();
 
 const formSchema = computed((): VbenFormSchema[] => {
@@ -52,8 +54,30 @@ const formSchema = computed((): VbenFormSchema[] => {
   ];
 });
 
-function handleSubmit() {
-  message.success('密码修改成功');
+async function handleSubmit(values: {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  try {
+    const response = await changePasswordApi({
+      oldPassword: values.oldPassword,
+      newPassword: values.newPassword,
+      confirmPassword: values.confirmPassword,
+    });
+
+    if (response.success) {
+      message.success(response.message || '密码修改成功');
+      // 重置表单
+      profilePasswordSettingRef.value?.resetForm?.();
+    } else {
+      message.error(response.message || '密码修改失败');
+    }
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || '密码修改失败，请稍后重试';
+    message.error(errorMessage);
+  }
 }
 </script>
 <template>

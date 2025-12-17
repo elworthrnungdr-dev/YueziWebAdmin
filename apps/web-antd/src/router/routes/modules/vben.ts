@@ -13,82 +13,46 @@ import { SvgTDesignIcon } from '@vben/icons';
 import { IFrameView } from '#/layouts';
 import { $t } from '#/locales';
 
+// 项目（Vben 官方预览、文档等）相关静态路由，现阶段在菜单中不展示。
+// 如果后续需要再次启用，可恢复下方被注释的配置。
+// const routes: RouteRecordRaw[] = [
+//   {
+//     meta: {
+//       badgeType: 'dot',
+//       icon: VBEN_LOGO_URL,
+//       order: 9998,
+//       title: $t('demos.vben.title'),
+//     },
+//     name: 'VbenProject',
+//     path: '/vben-admin',
+//     children: [
+//       { ... },
+//     ],
+//   },
+//   {
+//     name: 'VbenAbout',
+//     path: '/vben-admin/about',
+//     component: () => import('#/views/_core/about/index.vue'),
+//     meta: {
+//       icon: 'lucide:copyright',
+//       title: $t('demos.vben.about'),
+//       order: 9999,
+//     },
+//   },
+//   {
+//     name: 'Profile',
+//     path: '/profile',
+//     component: () => import('#/views/_core/profile/index.vue'),
+//     meta: {
+//       icon: 'lucide:user',
+//       hideInMenu: true,
+//       title: $t('page.auth.profile'),
+//     },
+//   },
+// ];
+
+// 只保留实际使用的 Profile 路由（不在菜单中显示）
 const routes: RouteRecordRaw[] = [
-  {
-    meta: {
-      badgeType: 'dot',
-      icon: VBEN_LOGO_URL,
-      order: 9998,
-      title: $t('demos.vben.title'),
-    },
-    name: 'VbenProject',
-    path: '/vben-admin',
-    children: [
-      {
-        name: 'VbenDocument',
-        path: '/vben-admin/document',
-        component: IFrameView,
-        meta: {
-          icon: 'lucide:book-open-text',
-          link: VBEN_DOC_URL,
-          title: $t('demos.vben.document'),
-        },
-      },
-      {
-        name: 'VbenGithub',
-        path: '/vben-admin/github',
-        component: IFrameView,
-        meta: {
-          icon: 'mdi:github',
-          link: VBEN_GITHUB_URL,
-          title: 'Github',
-        },
-      },
-      {
-        name: 'VbenNaive',
-        path: '/vben-admin/naive',
-        component: IFrameView,
-        meta: {
-          badgeType: 'dot',
-          icon: 'logos:naiveui',
-          link: VBEN_NAIVE_PREVIEW_URL,
-          title: $t('demos.vben.naive-ui'),
-        },
-      },
-      {
-        name: 'VbenTDesign',
-        path: '/vben-admin/tdesign',
-        component: IFrameView,
-        meta: {
-          badgeType: 'dot',
-          icon: SvgTDesignIcon,
-          link: VBEN_TD_PREVIEW_URL,
-          title: $t('demos.vben.tdesign'),
-        },
-      },
-      {
-        name: 'VbenElementPlus',
-        path: '/vben-admin/ele',
-        component: IFrameView,
-        meta: {
-          badgeType: 'dot',
-          icon: 'logos:element',
-          link: VBEN_ELE_PREVIEW_URL,
-          title: $t('demos.vben.element-plus'),
-        },
-      },
-    ],
-  },
-  {
-    name: 'VbenAbout',
-    path: '/vben-admin/about',
-    component: () => import('#/views/_core/about/index.vue'),
-    meta: {
-      icon: 'lucide:copyright',
-      title: $t('demos.vben.about'),
-      order: 9999,
-    },
-  },
   {
     name: 'Profile',
     path: '/profile',

@@ -13,5 +13,12 @@ export const overridesPreferences = defineOverridesPreferences({
     accessMode: 'backend',
     // 启用刷新token功能
     enableRefreshToken: true,
+    // 使用空字符串避免加载外部资源，消除浏览器跟踪防护警告
+    defaultAvatar: '',
+  },
+  logo: {
+    // 禁用 logo 或使用空字符串，避免加载外部资源
+    enable: false,
+    source: '',
   },
 });

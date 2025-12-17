@@ -302,7 +302,7 @@ function openMenu(path: string, parentPaths: string[]) {
     openedMenus.value = [path];
   } else {
     // 非手风琴模式，保留原有行为：在已打开列表中追加
-    openedMenus.value.push(path);
+  openedMenus.value.push(path);
   }
   emit('open', path, parentPaths);
 }
