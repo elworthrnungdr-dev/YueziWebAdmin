@@ -126,6 +126,7 @@ const columns = [
     key: 'actions',
     width: 140,
     fixed: 'right',
+    align: 'center',
   },
 ];
 
@@ -630,25 +631,27 @@ onMounted(fetchList);
           <span v-else>—</span>
         </template>
         <template v-else-if="column.key === 'actions'">
-          <Space>
-            <Button
-              size="small"
-              type="link"
-              class="cursor-pointer"
-              @click="openEditModal(record)"
-            >
-              更新
-            </Button>
-            <Button
-              size="small"
-              type="link"
-              danger
-              class="cursor-pointer"
-              @click="handleDelete(record)"
-            >
-              删除
-            </Button>
-          </Space>
+          <div style="text-align: center">
+            <Space>
+              <Button
+                size="small"
+                type="link"
+                class="cursor-pointer"
+                @click="openEditModal(record)"
+              >
+                更新
+              </Button>
+              <Button
+                size="small"
+                type="link"
+                danger
+                class="cursor-pointer"
+                @click="handleDelete(record)"
+              >
+                删除
+              </Button>
+            </Space>
+          </div>
         </template>
       </template>
     </Table>

@@ -161,6 +161,7 @@ const columns = [
     key: 'actions',
     width: 140,
     fixed: 'right',
+    align: 'center',
   },
 ];
 
@@ -524,26 +525,28 @@ onMounted(() => {
           </span>
         </template>
         <template v-else-if="column.key === 'actions'">
-          <Space>
-            <Button
-              size="small"
-              type="link"
-              class="cursor-pointer"
-              @click="openEditModal(record)"
-            >
-              更新
-            </Button>
-            <Popconfirm
-              title="确定删除该来访登记吗？"
-              ok-text="删除"
-              cancel-text="取消"
-              @confirm="handleDelete(record)"
-            >
-              <Button type="link" danger size="small" class="cursor-pointer">
-                删除
+          <div style="text-align: center">
+            <Space>
+              <Button
+                size="small"
+                type="link"
+                class="cursor-pointer"
+                @click="openEditModal(record)"
+              >
+                更新
               </Button>
-            </Popconfirm>
-          </Space>
+              <Popconfirm
+                title="确定删除该来访登记吗？"
+                ok-text="删除"
+                cancel-text="取消"
+                @confirm="handleDelete(record)"
+              >
+                <Button type="link" danger size="small" class="cursor-pointer">
+                  删除
+                </Button>
+              </Popconfirm>
+            </Space>
+          </div>
         </template>
       </template>
     </Table>
