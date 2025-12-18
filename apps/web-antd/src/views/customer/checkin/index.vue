@@ -466,7 +466,7 @@ onMounted(fetchList);
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新入住信息' : '创建入住信息'"
-      width="800px"
+      width="630px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
@@ -482,7 +482,7 @@ onMounted(fetchList);
         <div class="grid grid-cols-2 gap-4">
           <!-- 第一列 -->
           <div>
-            <Form.Item label="创建类型" name="createdByType">
+            <Form.Item label="创建类型" name="createdByType" class="spaced-field">
               <Select
                 v-model:value="formModel.createdByType"
                 :options="createdByTypeOptions"
@@ -504,16 +504,6 @@ onMounted(fetchList);
                 v-model:value="formModel.roomId"
                 placeholder="请输入房间ID"
                 allow-clear
-              />
-            </Form.Item>
-
-            <Form.Item label="入住日期" name="checkinDate">
-              <DatePicker
-                v-model:value="formModel.checkinDate"
-                show-time
-                format="YYYY-MM-DD HH:mm:ss"
-                placeholder="请选择入住日期"
-                style="width: 100%"
               />
             </Form.Item>
           </div>
@@ -539,18 +529,48 @@ onMounted(fetchList);
               />
             </Form.Item>
 
-            <Form.Item label="备注" name="remark">
-              <Input.TextArea
-                v-model:value="formModel.remark"
-                :rows="4"
-                placeholder="请输入备注"
-                allow-clear
+            <Form.Item label="入住日期" name="checkinDate" class="spaced-field">
+              <DatePicker
+                v-model:value="formModel.checkinDate"
+                show-time
+                format="YYYY-MM-DD HH:mm:ss"
+                placeholder="请选择入住日期"
+                style="width: 100%"
               />
             </Form.Item>
           </div>
         </div>
+
+        <Form.Item name="remark" :label-col="{ span: 0 }" :wrapper-col="{ span: 24 }">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="text-align: left;">备注</label>
+            <Input.TextArea
+              v-model:value="formModel.remark"
+              :rows="4"
+              placeholder="请输入备注"
+              allow-clear
+              style="width: 100%"
+            />
+          </div>
+        </Form.Item>
       </Form>
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 确保备注输入框与其他输入框对齐 */
+:deep(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+:deep(.ant-input) {
+  width: 100%;
+}
+
+/* 单独调整创建类型和入住日期字段的标签和输入框间距 */
+:deep(.spaced-field .ant-form-item-label) {
+  padding-right: 24px !important;
+}
+</style>
 

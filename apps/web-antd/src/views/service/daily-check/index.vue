@@ -545,8 +545,9 @@ function handleDelete(record: DailyCheckItem) {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新每日查房' : '创建每日查房'"
-      width="900px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -555,7 +556,8 @@ function handleDelete(record: DailyCheckItem) {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        layout="vertical"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-4">
           <Form.Item label="客户ID" name="customerId">
@@ -580,7 +582,7 @@ function handleDelete(record: DailyCheckItem) {
               placeholder="请选择查访时间"
             />
           </Form.Item>
-          <Form.Item label="查访人ID（员工ID）" name="visitorId">
+          <Form.Item label="查访人ID" name="visitorId">
             <Input
               v-model:value="formModel.visitorId"
               placeholder="请输入查访人ID"
@@ -739,4 +741,11 @@ function handleDelete(record: DailyCheckItem) {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 

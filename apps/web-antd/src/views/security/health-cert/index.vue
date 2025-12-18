@@ -560,8 +560,9 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新健康证管理' : '创建健康证管理'"
-      width="900px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -570,9 +571,12 @@ onMounted(() => {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        layout="vertical"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-4">
+          <!-- 第一列 -->
+          <div>
           <Form.Item label="员工ID" name="employeeId">
             <Input
               v-model:value="formModel.employeeId"
@@ -612,6 +616,10 @@ onMounted(() => {
               placeholder="请选择过期日期"
             />
           </Form.Item>
+          </div>
+
+          <!-- 第二列 -->
+          <div>
           <Form.Item label="状态" name="certStatus">
             <Select
               v-model:value="formModel.certStatus"
@@ -646,6 +654,7 @@ onMounted(() => {
               placeholder="请选择下次体检日期"
             />
           </Form.Item>
+          </div>
         </div>
         <Form.Item label="健康证正面图片地址" name="certFrontImage">
           <Input
@@ -678,4 +687,10 @@ onMounted(() => {
   </div>
 </template>
 
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 

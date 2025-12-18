@@ -607,7 +607,7 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新保安巡更' : '创建保安巡更'"
-      width="900px"
+      width="650px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
@@ -619,7 +619,7 @@ onMounted(() => {
         :rules="formRules"
         layout="vertical"
       >
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <Form.Item label="巡逻日期" name="patrolDate">
             <DatePicker
               v-model:value="formModel.patrolDate"
@@ -677,13 +677,13 @@ onMounted(() => {
                 :options="routeOptions"
                 :loading="routeLoading"
                 placeholder="请选择巡逻线路"
-                style="width: 200px"
+                style="width: 140px"
                 allow-clear
               />
               <Input
                 v-model:value="item.time"
-                placeholder="请输入日期时间"
-                style="width: 280px"
+                placeholder="请输入时间"
+                style="width: 120px"
               />
               <Button
                 v-if="index === formModel.routeItems.length - 1"

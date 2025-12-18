@@ -426,7 +426,7 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新呼叫记录' : '创建呼叫记录'"
-      width="700px"
+      width="400px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"

@@ -505,8 +505,9 @@ onMounted(fetchList);
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '编辑员工' : '添加员工'"
-      :width="720"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="createModalVisible = false"
       destroy-on-close
@@ -515,16 +516,19 @@ onMounted(fetchList);
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        layout="vertical"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-4">
+          <!-- 第一列 -->
+          <div>
           <Form.Item label="职工姓名" name="employeesName">
             <Input
               v-model:value="formModel.employeesName"
               placeholder="请输入职工姓名"
             />
           </Form.Item>
-          <Form.Item label="工号（登录用户名）" name="employeeNumber">
+          <Form.Item label="工号" name="employeeNumber">
             <Input
               v-model:value="formModel.employeeNumber"
               placeholder="请输入工号"
@@ -624,6 +628,10 @@ onMounted(fetchList);
               style="width: 100%"
             />
           </Form.Item>
+          </div>
+
+          <!-- 第二列 -->
+          <div>
           <Form.Item label="邮箱" name="email">
             <Input v-model:value="formModel.email" placeholder="请输入邮箱" />
           </Form.Item>
@@ -698,10 +706,18 @@ onMounted(fetchList);
               placeholder="请输入备注"
             />
           </Form.Item>
+          </div>
         </div>
       </Form>
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 
 

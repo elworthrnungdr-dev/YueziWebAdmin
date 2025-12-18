@@ -790,8 +790,9 @@ async function handleStatusSubmit() {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新访客登记' : '创建访客登记'"
-      width="1000px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -800,9 +801,12 @@ async function handleStatusSubmit() {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        layout="vertical"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 gap-4">
+          <!-- 第一列 -->
+          <div>
           <Form.Item label="预约类型" name="appointmentType">
             <Select
               v-model:value="formModel.appointmentType"
@@ -887,6 +891,10 @@ async function handleStatusSubmit() {
               placeholder="请选择预产期"
             />
           </Form.Item>
+          </div>
+
+          <!-- 第二列 -->
+          <div>
           <Form.Item label="预约日期" name="appointmentDate">
             <DatePicker
               v-model:value="formModel.appointmentDate"
@@ -974,6 +982,7 @@ async function handleStatusSubmit() {
               placeholder="请输入陪同人数"
             />
           </Form.Item>
+          </div>
         </div>
         <Form.Item label="特殊要求" name="specialRequirements">
           <Input.TextArea
@@ -1061,4 +1070,11 @@ async function handleStatusSubmit() {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 

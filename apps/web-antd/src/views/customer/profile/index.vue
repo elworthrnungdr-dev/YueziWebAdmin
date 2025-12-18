@@ -656,8 +656,9 @@ onMounted(fetchList);
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新客户档案' : '创建客户档案'"
-      width="1200px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -666,8 +667,8 @@ onMounted(fetchList);
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-4">
           <!-- 第一列 -->
@@ -1042,5 +1043,10 @@ onMounted(fetchList);
 
 .customer-table :deep(.ant-table-body) {
   overflow-x: scroll;
+}
+
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
 }
 </style>

@@ -588,8 +588,9 @@ function handleDelete(record: MealSampleItem) {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新餐食留样' : '创建餐食留样'"
-      width="1200px"
+      width="700px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -791,5 +792,34 @@ function handleDelete(record: MealSampleItem) {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 表单居中显示 */
+:deep(.ant-form) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+:deep(.ant-form-item) {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 输入框添加3个缩进 */
+:deep(.ant-form-item-control-input) {
+  padding-left: 3em !important;
+}
+
+/* 输入框减少50px宽度 */
+:deep(.ant-input),
+:deep(.ant-picker),
+:deep(.ant-select),
+:deep(.ant-input-number),
+:deep(.ant-input-number-input) {
+  width: calc(100% - 50px) !important;
+  max-width: calc(100% - 50px) !important;
+}
+</style>
 
 

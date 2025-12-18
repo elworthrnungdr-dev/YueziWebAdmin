@@ -506,8 +506,9 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新请假记录' : '创建请假记录'"
-      width="1100px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -516,8 +517,8 @@ onMounted(() => {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-x-6">
           <Form.Item label="客户ID" name="customerId">
@@ -677,4 +678,11 @@ onMounted(() => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 

@@ -473,7 +473,7 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新产康套餐项目' : '创建产康套餐项目'"
-      width="900px"
+      width="550px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"

@@ -546,8 +546,9 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新隐患上报' : '创建隐患上报'"
-      width="900px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -556,9 +557,12 @@ onMounted(() => {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        layout="vertical"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-4">
+          <!-- 第一列 -->
+          <div>
           <Form.Item label="关联项目设备登记ID" name="projectId">
             <Input
               v-model:value="formModel.projectId"
@@ -598,6 +602,10 @@ onMounted(() => {
               placeholder="请输入房间ID"
             />
           </Form.Item>
+          </div>
+
+          <!-- 第二列 -->
+          <div>
           <Form.Item label="发现人ID" name="discovererId">
             <Input
               v-model:value="formModel.discovererId"
@@ -633,6 +641,7 @@ onMounted(() => {
               placeholder="请选择上报时间"
             />
           </Form.Item>
+          </div>
         </div>
 
         <Form.Item label="详细描述" name="description">
@@ -667,5 +676,12 @@ onMounted(() => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 
 

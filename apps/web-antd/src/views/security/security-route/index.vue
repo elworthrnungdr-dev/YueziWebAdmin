@@ -443,7 +443,7 @@ function handleDelete(record: SecurityRouteItem) {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新巡逻线路' : '创建巡逻线路'"
-      width="800px"
+      width="500px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"

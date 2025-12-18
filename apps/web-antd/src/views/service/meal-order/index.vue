@@ -457,6 +457,7 @@ function handleDelete(record: MealOrderItem) {
       :title="isEditMode ? '更新订餐管理' : '创建订餐管理'"
       width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -465,7 +466,8 @@ function handleDelete(record: MealOrderItem) {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        layout="vertical"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-4">
           <Form.Item label="客户ID" name="customerId">
@@ -576,4 +578,11 @@ function handleDelete(record: MealOrderItem) {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 

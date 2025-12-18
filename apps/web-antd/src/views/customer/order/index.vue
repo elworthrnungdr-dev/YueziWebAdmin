@@ -241,12 +241,13 @@ const formRef = ref<FormInstance>();
 const formModel = ref<
   CreateMealOrderParams & {
     orderDate?: Dayjs;
+    mealTime?: Dayjs;
   }
 >({
   customerId: '',
   orderDate: undefined,
   mealType: 1,
-  mealTime: '',
+  mealTime: undefined,
   menuName: '',
   mealContent: '',
   specialRequirements: '',
@@ -263,7 +264,7 @@ const formRules = {
   customerId: [{ required: true, message: '请输入客户ID' }],
   orderDate: [{ required: true, message: '请选择订餐日期' }],
   mealType: [{ required: true, message: '请选择餐别' }],
-  mealTime: [{ required: true, message: '请输入用餐时间' }],
+  mealTime: [{ required: true, message: '请选择用餐时间' }],
   menuName: [{ required: true, message: '请输入菜单名称' }],
   mealContent: [{ required: true, message: '请输入菜品内容' }],
   paymentType: [{ required: true, message: '请选择支付类型' }],
@@ -278,7 +279,7 @@ function resetForm() {
     customerId: '',
     orderDate: undefined,
     mealType: 1,
-    mealTime: '',
+    mealTime: undefined,
     menuName: '',
     mealContent: '',
     specialRequirements: '',
@@ -312,7 +313,7 @@ async function openEditModal(record: MealOrderItem) {
       customerId: detail.customerId || '',
       orderDate: detail.orderDate ? dayjs(detail.orderDate) : undefined,
       mealType: detail.mealType ?? 1,
-      mealTime: detail.mealTime || '',
+      mealTime: detail.mealTime ? dayjs(detail.mealTime) : undefined,
       menuName: detail.menuName || '',
       mealContent: detail.mealContent || '',
       specialRequirements: detail.specialRequirements || '',
@@ -355,6 +356,7 @@ async function handleSubmit() {
     const baseData = {
       ...values,
       orderDate: toIso(values.orderDate as Dayjs | undefined),
+      mealTime: toIso(values.mealTime as Dayjs | undefined),
     };
 
     if (isEditMode.value) {
@@ -548,8 +550,9 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新订餐记录' : '创建订餐记录'"
-      width="1100px"
+      width="800px"
       :confirm-loading="submitting"
+      :body-style="{ maxHeight: '600px', overflowY: 'auto' }"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
       destroy-on-close
@@ -558,8 +561,8 @@ onMounted(() => {
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
+        :label-col="{ span: 7 }"
+        :wrapper-col="{ span: 14 }"
       >
         <div class="grid grid-cols-2 gap-x-6">
           <Form.Item label="客户ID" name="customerId">
@@ -586,9 +589,12 @@ onMounted(() => {
             />
           </Form.Item>
           <Form.Item label="用餐时间" name="mealTime">
-            <Input
+            <DatePicker
               v-model:value="formModel.mealTime"
-              placeholder="请输入用餐时间"
+              show-time
+              format="YYYY-MM-DD HH:mm:ss"
+              placeholder="请选择用餐时间"
+              style="width: 100%"
             />
           </Form.Item>
 
@@ -670,5 +676,12 @@ onMounted(() => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 16px !important;
+}
+</style>
 
 

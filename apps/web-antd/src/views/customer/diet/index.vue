@@ -388,7 +388,7 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新饮食禁忌' : '创建饮食禁忌'"
-      width="800px"
+      width="500px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"

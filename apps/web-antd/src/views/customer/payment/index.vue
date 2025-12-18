@@ -539,10 +539,10 @@ onMounted(fetchList);
         ref="formRef"
         :model="formModel"
         :rules="formRules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
+        :label-col="{ span: 8 }"
+        :wrapper-col="{ span: 14 }"
       >
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <!-- 第一列 -->
           <div>
             <Form.Item label="合同ID" name="tContractId">
@@ -580,7 +580,10 @@ onMounted(fetchList);
                 style="width: 100%"
               />
             </Form.Item>
+          </div>
 
+          <!-- 第二列 -->
+          <div>
             <Form.Item label="支付方式" name="paymentMethod">
               <Select
                 v-model:value="formModel.paymentMethod"
@@ -598,10 +601,7 @@ onMounted(fetchList);
                 style="width: 100%"
               />
             </Form.Item>
-          </div>
 
-          <!-- 第二列 -->
-          <div>
             <Form.Item label="支付时间" name="paymentTime">
               <DatePicker
                 v-model:value="formModel.paymentTime"
@@ -619,7 +619,10 @@ onMounted(fetchList);
                 allow-clear
               />
             </Form.Item>
+          </div>
 
+          <!-- 第三列 -->
+          <div>
             <Form.Item label="发票号" name="invoiceNo">
               <Input
                 v-model:value="formModel.invoiceNo"
@@ -636,19 +639,44 @@ onMounted(fetchList);
                 style="width: 100%"
               />
             </Form.Item>
-
-            <Form.Item label="备注" name="remark">
-              <Input.TextArea
-                v-model:value="formModel.remark"
-                :rows="4"
-                placeholder="请输入备注"
-                allow-clear
-              />
-            </Form.Item>
           </div>
         </div>
+
+        <Form.Item name="remark" class="remark-field" :label-col="{ span: 0 }" :wrapper-col="{ span: 24 }">
+          <div style="display: flex; align-items: flex-start; gap: 8px;">
+            <label style="margin-top: 4px; white-space: nowrap;">备注</label>
+            <Input.TextArea
+              v-model:value="formModel.remark"
+              :rows="4"
+              placeholder="请输入备注"
+              allow-clear
+              style="flex: 1"
+            />
+          </div>
+        </Form.Item>
       </Form>
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* 增加表单标签和输入框之间的间距 */
+:deep(.ant-form-item-label) {
+  padding-right: 24px !important;
+}
+
+/* 备注字段靠左显示 */
+:deep(.remark-field) {
+  text-align: left;
+}
+
+:deep(.remark-field .ant-form-item-label) {
+  text-align: left;
+  padding-right: 8px;
+}
+
+:deep(.remark-field .ant-form-item-control) {
+  text-align: left;
+}
+</style>
 
