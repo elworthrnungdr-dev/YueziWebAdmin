@@ -63,12 +63,6 @@ const babyAccompanyOptions = [
 
 const columns = [
   {
-    title: '客户ID',
-    dataIndex: 'customerId',
-    key: 'customerId',
-    width: 150,
-  },
-  {
     title: '请假类型',
     dataIndex: 'leaveTypeText',
     key: 'leaveTypeText',

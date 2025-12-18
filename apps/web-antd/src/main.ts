@@ -1,4 +1,4 @@
-import { initPreferences } from '@vben/preferences';
+import { initPreferences, updatePreferences } from '@vben/preferences';
 import { unmountGlobalLoading } from '@vben/utils';
 
 import { overridesPreferences } from './preferences';
@@ -17,6 +17,17 @@ async function initApplication() {
   await initPreferences({
     namespace,
     overrides: overridesPreferences,
+  });
+
+  // 强制写入品牌与 logo（覆盖本地缓存的旧值，确保登录页左上角显示）
+  updatePreferences({
+    app: {
+      name: '润康月子会所',
+    },
+    logo: {
+      enable: true,
+      source: '/favicon.ico',
+    },
   });
 
   // 启动应用并挂载

@@ -51,12 +51,6 @@ const perishableOptions = [
 
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    width: 200,
-  },
-  {
     title: '物资编码',
     dataIndex: 'materialCode',
     key: 'materialCode',
@@ -390,6 +384,7 @@ function handleDelete(record: MaterialItem) {
     </div>
 
     <Table
+      class="list-table"
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
@@ -490,11 +485,10 @@ function handleDelete(record: MaterialItem) {
       </template>
     </Table>
 
-    <!-- 创建 / 编辑物资信息弹窗 -->
+    <!-- 创建 / 编辑物资信息弹窗（恢复为默认样式） -->
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新物资信息' : '创建物资信息'"
-      width="900px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
@@ -620,5 +614,15 @@ function handleDelete(record: MaterialItem) {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.list-table :deep(.ant-table-thead > tr > th) {
+  white-space: nowrap;
+}
+
+.list-table :deep(.ant-table-body) {
+  overflow-x: scroll;
+}
+</style>
 
 

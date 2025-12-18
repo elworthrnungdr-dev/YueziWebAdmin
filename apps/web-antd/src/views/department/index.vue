@@ -165,7 +165,6 @@ const columns = [
   <div class="p-4">
     <div class="mb-3 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <h2 class="text-lg font-semibold">部门管理</h2>
         <Button
           type="primary"
           size="small"
@@ -210,43 +209,41 @@ const columns = [
       @cancel="createModalVisible = false"
       destroy-on-close
     >
-      <div class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
-        <Form
-          ref="formRef"
-          :model="formModel"
-          :rules="formRules"
-          layout="vertical"
-        >
-          <Form.Item label="部门编码" name="deptCode">
-            <Input
-              v-model:value="formModel.deptCode"
-              allow-clear
-              placeholder="请输入部门编码"
-            />
-          </Form.Item>
-          <Form.Item label="部门名称" name="deptName">
-            <Input
-              v-model:value="formModel.deptName"
-              allow-clear
-              placeholder="请输入部门名称"
-            />
-          </Form.Item>
-          <Form.Item label="上级部门ID" name="parentId">
-            <Input
-              v-model:value="formModel.parentId"
-              allow-clear
-              placeholder="请输入上级部门ID"
-            />
-          </Form.Item>
-          <Form.Item label="负责人ID" name="leaderId">
-            <Input
-              v-model:value="formModel.leaderId"
-              allow-clear
-              placeholder="请输入负责人ID"
-            />
-          </Form.Item>
-        </Form>
-      </div>
+      <Form
+        ref="formRef"
+        :model="formModel"
+        :rules="formRules"
+        layout="vertical"
+      >
+        <Form.Item label="部门编码" name="deptCode">
+          <Input
+            v-model:value="formModel.deptCode"
+            allow-clear
+            placeholder="请输入部门编码"
+          />
+        </Form.Item>
+        <Form.Item label="部门名称" name="deptName">
+          <Input
+            v-model:value="formModel.deptName"
+            allow-clear
+            placeholder="请输入部门名称"
+          />
+        </Form.Item>
+        <Form.Item label="上级部门ID" name="parentId">
+          <Input
+            v-model:value="formModel.parentId"
+            allow-clear
+            placeholder="请输入上级部门ID"
+          />
+        </Form.Item>
+        <Form.Item label="负责人ID" name="leaderId">
+          <Input
+            v-model:value="formModel.leaderId"
+            allow-clear
+            placeholder="请输入负责人ID"
+          />
+        </Form.Item>
+      </Form>
     </Modal>
   </div>
 </template>

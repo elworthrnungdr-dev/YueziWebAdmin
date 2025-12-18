@@ -70,12 +70,6 @@ const columns = [
     width: 140,
   },
   {
-    title: '房型ID',
-    dataIndex: 'roomTypeId',
-    key: 'roomTypeId',
-    width: 160,
-  },
-  {
     title: '状态',
     dataIndex: 'status',
     key: 'status',
@@ -300,6 +294,7 @@ function handleDelete(record: RoomItem) {
     </div>
 
     <Table
+      class="list-table"
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
@@ -362,7 +357,6 @@ function handleDelete(record: RoomItem) {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新房间管理' : '创建房间管理'"
-      width="700px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
@@ -427,4 +421,13 @@ function handleDelete(record: RoomItem) {
   </div>
 </template>
 
+<style scoped>
+.list-table :deep(.ant-table-thead > tr > th) {
+  white-space: nowrap;
+}
+
+.list-table :deep(.ant-table-body) {
+  overflow-x: scroll;
+}
+</style>
 

@@ -395,7 +395,6 @@ onMounted(fetchList);
   <div class="p-4">
     <div class="mb-3 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="text-lg font-semibold">职工管理</div>
         <Button
           type="primary"
           size="small"

@@ -50,16 +50,10 @@ const dateRange = ref<[Dayjs | null, Dayjs | null]>([null, null]);
 
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    width: 40,
-  },
-  {
     title: '客户姓名',
     dataIndex: 'customerName',
     key: 'customerName',
-    width: 120,
+    width: 150,
   },
   {
     title: '性别',
@@ -77,7 +71,7 @@ const columns = [
     title: '联系电话',
     dataIndex: 'phoneNumber',
     key: 'phoneNumber',
-    width: 130,
+    width: 150,
   },
   {
     title: '微信号',
@@ -558,9 +552,11 @@ onMounted(fetchList);
     </div>
 
     <Table
+      class="customer-table"
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
+      :scroll="{ x: 'max-content' }"
       :pagination="{
         current: queryForm.PageIndex,
         pageSize: queryForm.PageSize,
@@ -1038,3 +1034,13 @@ onMounted(fetchList);
   </div>
 </template>
 
+<style scoped>
+/* 客户档案列表：列头文字不换行，始终显示横向滚动条 */
+.customer-table :deep(.ant-table-thead > tr > th) {
+  white-space: nowrap;
+}
+
+.customer-table :deep(.ant-table-body) {
+  overflow-x: scroll;
+}
+</style>

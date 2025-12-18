@@ -55,12 +55,6 @@ const projectTypeOptions = [
 
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    width: 220,
-  },
-  {
     title: '项目编码',
     dataIndex: 'projectCode',
     key: 'projectCode',

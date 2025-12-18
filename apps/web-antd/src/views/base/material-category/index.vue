@@ -40,12 +40,6 @@ const queryForm = ref<MaterialCategoryListParams>({
 
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    width: 220,
-  },
-  {
     title: '类别编码',
     dataIndex: 'categoryCode',
     key: 'categoryCode',
@@ -347,7 +341,6 @@ function handleDelete(record: MaterialCategoryItem) {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新物资类别' : '创建物资类别'"
-      width="700px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
@@ -398,5 +391,8 @@ function handleDelete(record: MaterialCategoryItem) {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+</style>
 
 

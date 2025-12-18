@@ -71,12 +71,6 @@ const babyMeetOptions = [
 
 const columns = [
   {
-    title: '客户ID',
-    dataIndex: 'customerId',
-    key: 'customerId',
-    width: 150,
-  },
-  {
     title: '来访人姓名',
     dataIndex: 'visitorName',
     key: 'visitorName',

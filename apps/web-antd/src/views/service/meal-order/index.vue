@@ -68,12 +68,6 @@ const paymentStatusOptions = [
 
 const columns = [
   {
-    title: '客户ID',
-    dataIndex: 'customerId',
-    key: 'customerId',
-    width: 140,
-  },
-  {
     title: '合同编号',
     dataIndex: 'contractNo',
     key: 'contractNo',

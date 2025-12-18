@@ -90,7 +90,7 @@ const columns = [
     title: '客户姓名',
     dataIndex: 'customername',
     key: 'customername',
-    width: 120,
+    width: 150,
   },
   {
     title: '身份证号',
@@ -102,7 +102,7 @@ const columns = [
     title: '联系电话',
     dataIndex: 'phonenumber',
     key: 'phonenumber',
-    width: 130,
+    width: 150,
   },
   {
     title: '产检医院',
@@ -114,7 +114,7 @@ const columns = [
     title: '预计入住时间',
     dataIndex: 'expectedcheckintime',
     key: 'expectedcheckintime',
-    width: 160,
+    width: 180,
   },
   {
     title: '套餐天数',
@@ -488,6 +488,7 @@ onMounted(fetchList);
     </div>
 
     <Table
+      class="list-table"
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
@@ -498,6 +499,7 @@ onMounted(fetchList);
         showSizeChanger: true,
       }"
       row-key="id"
+      :scroll="{ x: 'max-content' }"
       @change="handleTableChange"
     >
       <template #bodyCell="{ column, record }">
@@ -796,3 +798,12 @@ onMounted(fetchList);
   </div>
 </template>
 
+<style scoped>
+.list-table :deep(.ant-table-thead > tr > th) {
+  white-space: nowrap;
+}
+
+.list-table :deep(.ant-table-body) {
+  overflow-x: scroll;
+}
+</style>

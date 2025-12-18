@@ -74,12 +74,6 @@ const createDateRange = ref<[Dayjs | null, Dayjs | null]>([null, null]);
 
 const columns = [
   {
-    title: '客户ID',
-    dataIndex: 'tCustomerId',
-    key: 'tCustomerId',
-    width: 150,
-  },
-  {
     title: '合同编号',
     dataIndex: 'tContractId',
     key: 'tContractId',

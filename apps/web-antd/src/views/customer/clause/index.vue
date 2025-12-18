@@ -57,12 +57,6 @@ const columns = [
     width: 150,
   },
   {
-    title: '客户ID',
-    dataIndex: 'customerId',
-    key: 'customerId',
-    width: 150,
-  },
-  {
     title: '标题',
     dataIndex: 'title',
     key: 'title',

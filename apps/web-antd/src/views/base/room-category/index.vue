@@ -31,12 +31,6 @@ const queryForm = ref<RoomTypeListParams>({
 
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-    width: 220,
-  },
-  {
     title: '房型名称',
     dataIndex: 'typeName',
     key: 'typeName',
@@ -265,6 +259,7 @@ function handleDelete(record: RoomTypeItem) {
     </div>
 
     <Table
+      class="list-table"
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
@@ -324,7 +319,6 @@ function handleDelete(record: RoomTypeItem) {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新房型管理' : '创建房型管理'"
-      width="700px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
@@ -375,5 +369,16 @@ function handleDelete(record: RoomTypeItem) {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.list-table :deep(.ant-table-thead > tr > th) {
+  white-space: nowrap;
+}
+
+.list-table :deep(.ant-table-body) {
+  overflow-x: scroll;
+}
+</style>
+
 
 

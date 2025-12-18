@@ -8,7 +8,8 @@ import { defineOverridesPreferences } from '@vben/preferences';
 export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
-    name: import.meta.env.VITE_APP_TITLE,
+    // 固定品牌名（避免因本地偏好缓存/缺少 env 导致显示为 Vben Admin）
+    name: '润康月子会所',
     // 设置为后端权限模式，从后端接口获取菜单
     accessMode: 'backend',
     // 启用刷新token功能
@@ -17,8 +18,8 @@ export const overridesPreferences = defineOverridesPreferences({
     defaultAvatar: '',
   },
   logo: {
-    // 禁用 logo 或使用空字符串，避免加载外部资源
-    enable: false,
-    source: '',
+    // 启用 logo，使用本地资源避免外部加载
+    enable: true,
+    source: '/favicon.ico',
   },
 });

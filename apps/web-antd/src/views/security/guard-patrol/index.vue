@@ -7,10 +7,12 @@ import {
   getSecurityPatrolDetailApi,
   updateSecurityPatrolApi,
   deleteSecurityPatrolApi,
+  getSecurityRouteListApi,
   type SecurityPatrolItem,
   type SecurityPatrolListParams,
   type CreateSecurityPatrolParams,
   type UpdateSecurityPatrolParams,
+  type SecurityRouteItem,
 } from '#/api';
 
 import {
@@ -196,8 +198,12 @@ const formRef = ref<FormInstance>();
 // 巡逻线路项接口
 interface RouteItem {
   route: string;
-  time: any; // dayjs 对象或 undefined
+  time: string; // 手动输入的字符串
 }
+
+// 巡逻线路选项
+const routeOptions = ref<Array<{ label: string; value: string }>>([]);
+const routeLoading = ref(false);
 
 // 使用 any 以便日期字段用 dayjs 对象
 const formModel = ref<any>({
@@ -223,7 +229,7 @@ function resetForm() {
     patrolDate: dayjs(),
     shift: 1,
     securityId: '',
-    routeItems: [{ route: '', time: undefined }] as RouteItem[],
+    routeItems: [{ route: '', time: '' }] as RouteItem[],
     startTime: undefined,
     endTime: undefined,
     patrolStatus: 1,
@@ -232,11 +238,27 @@ function resetForm() {
   formRef.value?.resetFields();
 }
 
+// 获取巡逻线路列表
+async function fetchRouteList() {
+  try {
+    routeLoading.value = true;
+    const result = await getSecurityRouteListApi({ PageSize: 20 });
+    routeOptions.value = (result.items || []).map((item: SecurityRouteItem) => ({
+      label: item.routeName,
+      value: item.routeName,
+    }));
+  } catch (error: any) {
+    message.error('获取巡逻线路列表失败');
+  } finally {
+    routeLoading.value = false;
+  }
+}
+
 // 添加一组巡逻线路
 function addRouteItem() {
   formModel.value.routeItems.push({
     route: '',
-    time: undefined,
+    time: '',
   });
 }
 
@@ -254,6 +276,7 @@ function openCreateModal() {
   editingId.value = '';
   createModalVisible.value = true;
   resetForm();
+  fetchRouteList();
 }
 
 async function openEditModal(record: SecurityPatrolItem) {
@@ -261,44 +284,45 @@ async function openEditModal(record: SecurityPatrolItem) {
   editingId.value = record.id;
   createModalVisible.value = true;
   resetForm();
+  fetchRouteList();
 
   try {
     const detail = await getSecurityPatrolDetailApi(record.id);
     
     // 解析 selectedRoutes JSON 字符串
-    let routeItems: RouteItem[] = [{ route: '', time: undefined }];
+    let routeItems: RouteItem[] = [{ route: '', time: '' }];
     if (detail.selectedRoutes) {
       try {
         const parsed = JSON.parse(detail.selectedRoutes);
         if (Array.isArray(parsed)) {
-          // 如果解析出来是数组，假设是旧格式的字符串数组
+          // 如果解析出来是数组
           routeItems = parsed.map((item: any) => {
             if (typeof item === 'string') {
-              return { route: item, time: undefined };
+              return { route: item, time: '' };
             } else if (item && typeof item === 'object') {
               return {
                 route: item.route || '',
-                time: item.time ? dayjs(item.time) : undefined,
+                time: item.time ? (typeof item.time === 'string' ? item.time : dayjs(item.time).format('YYYY-MM-DD HH:mm:ss')) : '',
               };
             }
-            return { route: '', time: undefined };
+            return { route: '', time: '' };
           });
         } else if (parsed && typeof parsed === 'object') {
           // 如果是对象，尝试转换为数组
           routeItems = Object.keys(parsed).map((key) => ({
             route: key,
-            time: parsed[key] ? dayjs(parsed[key]) : undefined,
+            time: parsed[key] ? (typeof parsed[key] === 'string' ? parsed[key] : dayjs(parsed[key]).format('YYYY-MM-DD HH:mm:ss')) : '',
           }));
         }
       } catch (e) {
         // 如果解析失败，使用原始字符串作为第一组的路由
-        routeItems = [{ route: detail.selectedRoutes, time: undefined }];
+        routeItems = [{ route: detail.selectedRoutes, time: '' }];
       }
     }
     
     // 确保至少有一组
     if (routeItems.length === 0) {
-      routeItems = [{ route: '', time: undefined }];
+      routeItems = [{ route: '', time: '' }];
     }
     
     formModel.value = {
@@ -338,12 +362,12 @@ async function handleSubmit() {
     submitting.value = true;
 
 // 将路由项数组转换为 JSON 字符串
-// 格式：[{ route: "线路1", time: "2025-12-18T08:00:00.000Z" }, ...]
+// 格式：[{ route: "线路1", time: "2025-12-18 08:00:00" }, ...]
     const routesData = routeItems
       .filter((item: RouteItem) => item.route && item.route.trim())
       .map((item: RouteItem) => ({
         route: item.route.trim(),
-        time: item.time ? dayjs(item.time).toISOString() : undefined,
+        time: item.time ? item.time.trim() : undefined,
       }));
     
     const selectedRoutes = JSON.stringify(routesData);
@@ -648,19 +672,27 @@ onMounted(() => {
               class="mb-2"
               style="display: flex; align-items: center; gap: 8px"
             >
-              <Input
+              <Select
                 v-model:value="item.route"
-                placeholder="请输入线路"
-                style="flex: 1"
+                :options="routeOptions"
+                :loading="routeLoading"
+                placeholder="请选择巡逻线路"
+                style="width: 200px"
+                allow-clear
               />
-              <DatePicker
+              <Input
                 v-model:value="item.time"
-                show-time
-                format="YYYY-MM-DD HH:mm:ss"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                placeholder="请选择日期时间"
-                style="width: 220px"
+                placeholder="请输入日期时间"
+                style="width: 280px"
               />
+              <Button
+                v-if="index === formModel.routeItems.length - 1"
+                type="text"
+                @click="addRouteItem"
+                style="padding: 0; width: 32px; height: 32px; min-width: 32px"
+              >
+                +
+              </Button>
               <Button
                 v-if="formModel.routeItems.length > 1"
                 type="text"
@@ -670,13 +702,6 @@ onMounted(() => {
                 删除
               </Button>
             </div>
-            <Button
-              type="dashed"
-              style="width: 100%"
-              @click="addRouteItem"
-            >
-              + 添加一组
-            </Button>
           </div>
         </Form.Item>
         <Form.Item label="备注" name="remark">
