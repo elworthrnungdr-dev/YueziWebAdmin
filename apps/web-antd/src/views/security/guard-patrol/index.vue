@@ -193,12 +193,18 @@ const isEditMode = ref(false);
 const editingId = ref<string>('');
 const formRef = ref<FormInstance>();
 
+// 巡逻线路项接口
+interface RouteItem {
+  route: string;
+  time: any; // dayjs 对象或 undefined
+}
+
 // 使用 any 以便日期字段用 dayjs 对象
 const formModel = ref<any>({
   patrolDate: dayjs(),
   shift: 1,
   securityId: '',
-  selectedRoutes: '',
+  routeItems: [] as RouteItem[],
   startTime: undefined as any,
   endTime: undefined as any,
   patrolStatus: 1,
@@ -209,7 +215,6 @@ const formRules = {
   patrolDate: [{ required: true, message: '请选择巡逻日期' }],
   shift: [{ required: true, message: '请选择班次' }],
   securityId: [{ required: true, message: '请输入保安ID' }],
-  selectedRoutes: [{ required: true, message: '请输入巡逻线路（JSON）' }],
   patrolStatus: [{ required: true, message: '请选择状态' }],
 };
 
@@ -218,13 +223,30 @@ function resetForm() {
     patrolDate: dayjs(),
     shift: 1,
     securityId: '',
-    selectedRoutes: '',
+    routeItems: [{ route: '', time: undefined }] as RouteItem[],
     startTime: undefined,
     endTime: undefined,
     patrolStatus: 1,
     remark: '',
   };
   formRef.value?.resetFields();
+}
+
+// 添加一组巡逻线路
+function addRouteItem() {
+  formModel.value.routeItems.push({
+    route: '',
+    time: undefined,
+  });
+}
+
+// 删除一组巡逻线路
+function removeRouteItem(index: number) {
+  if (formModel.value.routeItems.length > 1) {
+    formModel.value.routeItems.splice(index, 1);
+  } else {
+    message.warning('至少需要保留一组巡逻线路');
+  }
 }
 
 function openCreateModal() {
@@ -242,11 +264,48 @@ async function openEditModal(record: SecurityPatrolItem) {
 
   try {
     const detail = await getSecurityPatrolDetailApi(record.id);
+    
+    // 解析 selectedRoutes JSON 字符串
+    let routeItems: RouteItem[] = [{ route: '', time: undefined }];
+    if (detail.selectedRoutes) {
+      try {
+        const parsed = JSON.parse(detail.selectedRoutes);
+        if (Array.isArray(parsed)) {
+          // 如果解析出来是数组，假设是旧格式的字符串数组
+          routeItems = parsed.map((item: any) => {
+            if (typeof item === 'string') {
+              return { route: item, time: undefined };
+            } else if (item && typeof item === 'object') {
+              return {
+                route: item.route || '',
+                time: item.time ? dayjs(item.time) : undefined,
+              };
+            }
+            return { route: '', time: undefined };
+          });
+        } else if (parsed && typeof parsed === 'object') {
+          // 如果是对象，尝试转换为数组
+          routeItems = Object.keys(parsed).map((key) => ({
+            route: key,
+            time: parsed[key] ? dayjs(parsed[key]) : undefined,
+          }));
+        }
+      } catch (e) {
+        // 如果解析失败，使用原始字符串作为第一组的路由
+        routeItems = [{ route: detail.selectedRoutes, time: undefined }];
+      }
+    }
+    
+    // 确保至少有一组
+    if (routeItems.length === 0) {
+      routeItems = [{ route: '', time: undefined }];
+    }
+    
     formModel.value = {
       patrolDate: detail.patrolDate ? dayjs(detail.patrolDate) : dayjs(),
       shift: detail.shift ?? 1,
       securityId: detail.securityId || '',
-      selectedRoutes: detail.selectedRoutes || '',
+      routeItems: routeItems,
       startTime: detail.startTime ? dayjs(detail.startTime) : undefined,
       endTime: detail.endTime ? dayjs(detail.endTime) : undefined,
       patrolStatus: detail.patrolStatus ?? 1,
@@ -268,13 +327,32 @@ async function handleSubmit() {
   try {
     const values = await formRef.value?.validate();
     if (!values) return;
+    
+    // 验证巡逻线路项
+    const routeItems = formModel.value.routeItems || [];
+    if (routeItems.length === 0 || routeItems.every((item: RouteItem) => !item.route)) {
+      message.error('请至少输入一组巡逻线路');
+      return;
+    }
+    
     submitting.value = true;
+
+// 将路由项数组转换为 JSON 字符串
+// 格式：[{ route: "线路1", time: "2025-12-18T08:00:00.000Z" }, ...]
+    const routesData = routeItems
+      .filter((item: RouteItem) => item.route && item.route.trim())
+      .map((item: RouteItem) => ({
+        route: item.route.trim(),
+        time: item.time ? dayjs(item.time).toISOString() : undefined,
+      }));
+    
+    const selectedRoutes = JSON.stringify(routesData);
 
     const baseData: CreateSecurityPatrolParams = {
       patrolDate: dayjs(formModel.value.patrolDate).toISOString(),
       shift: formModel.value.shift,
       securityId: formModel.value.securityId,
-      selectedRoutes: formModel.value.selectedRoutes,
+      selectedRoutes: selectedRoutes,
       startTime: formModel.value.startTime
         ? dayjs(formModel.value.startTime).toISOString()
         : undefined,
@@ -562,12 +640,44 @@ onMounted(() => {
             />
           </Form.Item>
         </div>
-        <Form.Item label="巡逻线路(JSON 格式)" name="selectedRoutes">
-          <Input.TextArea
-            v-model:value="formModel.selectedRoutes"
-            :rows="3"
-            placeholder='请输入巡逻线路数组的 JSON 字符串，如 ["路线1","路线2"]'
-          />
+        <Form.Item label="巡逻线路">
+          <div>
+            <div
+              v-for="(item, index) in formModel.routeItems"
+              :key="index"
+              class="mb-2"
+              style="display: flex; align-items: center; gap: 8px"
+            >
+              <Input
+                v-model:value="item.route"
+                placeholder="请输入线路"
+                style="flex: 1"
+              />
+              <DatePicker
+                v-model:value="item.time"
+                show-time
+                format="YYYY-MM-DD HH:mm:ss"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                placeholder="请选择日期时间"
+                style="width: 220px"
+              />
+              <Button
+                v-if="formModel.routeItems.length > 1"
+                type="text"
+                danger
+                @click="removeRouteItem(index)"
+              >
+                删除
+              </Button>
+            </div>
+            <Button
+              type="dashed"
+              style="width: 100%"
+              @click="addRouteItem"
+            >
+              + 添加一组
+            </Button>
+          </div>
         </Form.Item>
         <Form.Item label="备注" name="remark">
           <Input.TextArea

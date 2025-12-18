@@ -6,3 +6,4 @@ import FoodSample from './food-sample/index.vue';
   <FoodSample />
 </template>
 
+

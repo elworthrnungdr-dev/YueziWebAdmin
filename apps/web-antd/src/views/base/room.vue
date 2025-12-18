@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import Index from './health-cert/index.vue';
+import Room from './room/index.vue';
 </script>
 
 <template>
-  <Index />
+  <Room />
 </template>
-
-
-
 
 
