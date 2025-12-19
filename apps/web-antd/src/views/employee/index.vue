@@ -9,12 +9,16 @@ import {
   updateEmployeeApi,
   deleteEmployeeApi,
   setEmployeePasswordApi,
+  setEmployeeRolesApi,
   type CreateEmployeeParams,
   type UpdateEmployeeParams,
   type DepartmentItem,
   type EmployeeItem,
   type EmployeeListParams,
+  type SetEmployeeRolesParams,
 } from '#/api';
+
+import { getRoleOptionsApi, getUserRolesApi, type RoleOption } from '#/api';
 
 import {
   Button,
@@ -27,6 +31,7 @@ import {
   Select,
   Space,
   Table,
+  Tag,
 } from 'ant-design-vue';
 import type { FormInstance } from 'ant-design-vue';
 
@@ -388,6 +393,62 @@ function handleDelete(record: EmployeeItem) {
   });
 }
 
+// 分配角色相关
+const assignRoleModalVisible = ref(false);
+const assignRoleSubmitting = ref(false);
+const assignRoleFormRef = ref<FormInstance>();
+const currentEmployee = ref<EmployeeItem | null>(null);
+const roleOptions = ref<RoleOption[]>([]);
+const selectedRoleIds = ref<string[]>([]);
+
+async function openAssignRoleModal(record: EmployeeItem) {
+  currentEmployee.value = record;
+  assignRoleModalVisible.value = true;
+  selectedRoleIds.value = [];
+  
+  try {
+    // 先获取用户已有的角色列表
+    const userRoles = await getUserRolesApi(record.id);
+    selectedRoleIds.value = userRoles.map((role) => role.id);
+    
+    // 获取所有角色列表（用于下拉选择）
+    const roles = await getRoleOptionsApi();
+    roleOptions.value = roles;
+  } catch (error: any) {
+    const errMsg =
+      error?.response?.data?.message || error?.message || '获取角色列表失败';
+    message.error(errMsg);
+  }
+}
+
+async function handleAssignRoleSubmit() {
+  try {
+    if (!currentEmployee.value) return;
+    
+    if (selectedRoleIds.value.length === 0) {
+      message.warning('请至少选择一个角色');
+      return;
+    }
+    
+    assignRoleSubmitting.value = true;
+    
+    await setEmployeeRolesApi({
+      id: currentEmployee.value.id,
+      roleIds: selectedRoleIds.value,
+    });
+    
+    message.success('分配角色成功');
+    assignRoleModalVisible.value = false;
+    fetchList();
+  } catch (error: any) {
+    const errMsg =
+      error?.response?.data?.message || error?.message || '分配角色失败';
+    message.error(errMsg);
+  } finally {
+    assignRoleSubmitting.value = false;
+  }
+}
+
 onMounted(fetchList);
 </script>
 
@@ -470,6 +531,9 @@ onMounted(fetchList);
             <Button type="link" size="small" @click="openSetPwdModal(record)">
               设置新密码
             </Button>
+            <Button type="link" size="small" @click="openAssignRoleModal(record)">
+              分配角色
+            </Button>
             <Button type="link" danger size="small" @click="handleDelete(record)">
               删除
             </Button>
@@ -497,6 +561,39 @@ onMounted(fetchList);
           <Input.Password
             v-model:value="setPwdForm.newPassword"
             placeholder="请输入新密码"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+
+    <!-- 分配角色弹窗 -->
+    <Modal
+      v-model:open="assignRoleModalVisible"
+      :title="`分配 ${currentEmployee?.name || ''} 用户的角色`"
+      :confirm-loading="assignRoleSubmitting"
+      @ok="handleAssignRoleSubmit"
+      @cancel="assignRoleModalVisible = false"
+      destroy-on-close
+      width="500px"
+    >
+      <Form
+        ref="assignRoleFormRef"
+        layout="vertical"
+      >
+        <Form.Item label="用户昵称">
+          <Input
+            :value="currentEmployee?.name || ''"
+            disabled
+          />
+        </Form.Item>
+        <Form.Item label="角色列表">
+          <Select
+            v-model:value="selectedRoleIds"
+            mode="multiple"
+            placeholder="请选择角色"
+            :options="roleOptions.map((role) => ({ label: role.roleName, value: role.id }))"
+            style="width: 100%"
+            allow-clear
           />
         </Form.Item>
       </Form>

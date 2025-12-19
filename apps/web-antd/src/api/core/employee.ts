@@ -180,5 +180,20 @@ export async function setEmployeePasswordApi(id: string, newPassword: string) {
   );
 }
 
+/**
+ * 设置职工角色
+ * 接口：POST /api/Employees/setRoles
+ */
+export interface SetEmployeeRolesParams {
+  id: string;
+  roleIds: string[];
+}
+
+export async function setEmployeeRolesApi(
+  params: SetEmployeeRolesParams,
+): Promise<void> {
+  await requestClient.post('/api/Employees/setRoles', params);
+}
+
 
 

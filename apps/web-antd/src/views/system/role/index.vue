@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { h, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 
 import {
   getRoleListApi,
@@ -7,14 +7,19 @@ import {
   getRoleDetailApi,
   updateRoleApi,
   deleteRoleApi,
+  getRolePermissionsApi,
+  saveRolePermissionsApi,
   type RoleItem,
   type RoleListParams,
   type CreateRoleParams,
   type UpdateRoleParams,
 } from '#/api';
 
+import { getMenuListApi, type MenuListItem } from '#/api';
+
 import {
   Button,
+  Checkbox,
   Form,
   Input,
   message,
@@ -23,6 +28,7 @@ import {
   Select,
   Space,
   Table,
+  Tree,
 } from 'ant-design-vue';
 import type { FormInstance } from 'ant-design-vue';
 
@@ -242,6 +248,278 @@ function handleDelete(record: RoleItem) {
   });
 }
 
+// 权限配置弹窗相关
+const permissionModalVisible = ref(false);
+const permissionLoading = ref(false);
+const permissionSubmitting = ref(false);
+const currentRole = ref<RoleItem | null>(null);
+const menuTreeData = ref<MenuListItem[]>([]);
+const expandedKeys = ref<string[]>([]);
+const checkedKeys = ref<string[]>([]);
+const searchKeyword = ref('');
+const expandAll = ref(false);
+const selectAll = ref(false);
+const parentChildLinkage = ref(false);
+
+// 扁平化菜单数据（用于搜索）
+const flatMenuList = ref<MenuListItem[]>([]);
+
+function flattenMenuList(menus: MenuListItem[], parentId?: string): void {
+  menus.forEach((menu) => {
+    flatMenuList.value.push({ ...menu, parentId: parentId || '' });
+    if (menu.children && menu.children.length > 0) {
+      flattenMenuList(menu.children, menu.id);
+    }
+  });
+}
+
+function getAllMenuIds(menus: MenuListItem[]): string[] {
+  const ids: string[] = [];
+  menus.forEach((menu) => {
+    ids.push(menu.id);
+    if (menu.children && menu.children.length > 0) {
+      ids.push(...getAllMenuIds(menu.children));
+    }
+  });
+  return ids;
+}
+
+function getAllExpandedKeys(menus: MenuListItem[]): string[] {
+  const keys: string[] = [];
+  menus.forEach((menu) => {
+    if (menu.children && menu.children.length > 0) {
+      keys.push(menu.id);
+      keys.push(...getAllExpandedKeys(menu.children));
+    }
+  });
+  return keys;
+}
+
+async function openPermissionModal(record: RoleItem) {
+  currentRole.value = record;
+  permissionModalVisible.value = true;
+  searchKeyword.value = '';
+  expandAll.value = false;
+  selectAll.value = false;
+  parentChildLinkage.value = false;
+  checkedKeys.value = [];
+  expandedKeys.value = [];
+  
+  try {
+    permissionLoading.value = true;
+    
+    // 第一步：先获取角色权限，得到已选中的菜单ID列表
+    // requestClient 已经提取了 data 字段，所以返回的直接就是 data 数组
+    const rolePermissions = await getRolePermissionsApi(record.id);
+    const permissionMenuIds: string[] = [];
+    // 如果返回的是数组，直接使用；如果是对象且有 data 字段，使用 data
+    if (Array.isArray(rolePermissions)) {
+      permissionMenuIds.push(...rolePermissions.map((id: any) => String(id).trim()));
+    } else if (rolePermissions?.data && Array.isArray(rolePermissions.data)) {
+      permissionMenuIds.push(...rolePermissions.data.map((id: any) => String(id).trim()));
+    }
+    
+    // 第二步：获取所有菜单列表
+    const menus = await getMenuListApi();
+    menuTreeData.value = menus;
+    flatMenuList.value = [];
+    flattenMenuList(menus);
+    
+    // 默认展开第一层
+    if (menus.length > 0) {
+      expandedKeys.value = menus.map((menu) => menu.id);
+    }
+    
+    // 第三步：匹配权限ID和菜单ID，设置选中状态
+    // 遍历所有菜单（包括子菜单），收集所有菜单ID
+    const getAllMenuIdsFromTree = (menuList: MenuListItem[]): string[] => {
+      const ids: string[] = [];
+      menuList.forEach((menu) => {
+        const menuId = String(menu.id).trim();
+        if (menuId) {
+          ids.push(menuId);
+        }
+        if (menu.children && menu.children.length > 0) {
+          ids.push(...getAllMenuIdsFromTree(menu.children));
+        }
+      });
+      return ids;
+    };
+    
+    // 获取所有菜单ID（去除空格，统一格式）
+    const allMenuIds = getAllMenuIdsFromTree(menus);
+    
+    // 匹配：如果权限ID在菜单ID列表中，则添加到选中列表
+    // 权限ID和菜单ID都转换为字符串并去除空格后比较
+    const matchedIds: string[] = [];
+    permissionMenuIds.forEach((permissionId) => {
+      const permissionIdStr = String(permissionId).trim();
+      // 在菜单ID列表中查找匹配的ID
+      const found = allMenuIds.find((menuId) => {
+        const menuIdStr = String(menuId).trim();
+        return menuIdStr === permissionIdStr;
+      });
+      if (found) {
+        matchedIds.push(permissionIdStr);
+      }
+    });
+    
+    // 设置选中状态
+    checkedKeys.value = matchedIds;
+    
+    // 如果匹配失败，但权限ID列表不为空，直接使用权限ID（可能是菜单还未加载或ID格式问题）
+    if (checkedKeys.value.length === 0 && permissionMenuIds.length > 0) {
+      checkedKeys.value = permissionMenuIds.map((id) => String(id).trim());
+    }
+  } catch (error: any) {
+    const errMsg =
+      error?.response?.data?.message || error?.message || '获取权限信息失败';
+    message.error(errMsg);
+    permissionModalVisible.value = false;
+  } finally {
+    permissionLoading.value = false;
+  }
+}
+
+function handleExpandAll() {
+  if (expandAll.value) {
+    expandedKeys.value = getAllExpandedKeys(menuTreeData.value);
+  } else {
+    expandedKeys.value = [];
+  }
+}
+
+function handleSelectAll() {
+  if (selectAll.value) {
+    checkedKeys.value = getAllMenuIds(menuTreeData.value);
+  } else {
+    checkedKeys.value = [];
+  }
+}
+
+function handleCheck(checked: { checked: string[]; halfChecked: string[] } | string[], info: any) {
+  // Ant Design Vue Tree 的 checked 可能是对象（包含 checked 和 halfChecked）或数组
+  const checkedArray = Array.isArray(checked) ? checked : checked.checked;
+  checkedKeys.value = checkedArray;
+  
+  if (parentChildLinkage.value && info) {
+    // 父子联动逻辑
+    const { node, checked: isChecked } = info;
+    
+    if (node) {
+      // 选中父节点时，自动选中所有子节点
+      if (isChecked && node.children && node.children.length > 0) {
+        const childIds = getAllMenuIds(node.children);
+        checkedKeys.value = [...new Set([...checkedKeys.value, ...childIds])];
+      }
+      
+      // 取消选中父节点时，自动取消选中所有子节点
+      if (!isChecked && node.children && node.children.length > 0) {
+        const childIds = getAllMenuIds(node.children);
+        checkedKeys.value = checkedKeys.value.filter((id) => !childIds.includes(id));
+      }
+      
+      // 如果所有子节点都被选中，自动选中父节点
+      if (node.parentId) {
+        const parent = findMenuById(menuTreeData.value, node.parentId);
+        if (parent && parent.children && parent.children.length > 0) {
+          const allChildrenChecked = parent.children.every((child) =>
+            checkedKeys.value.includes(child.id),
+          );
+          if (allChildrenChecked && !checkedKeys.value.includes(parent.id)) {
+            checkedKeys.value.push(parent.id);
+          }
+        }
+      }
+    }
+  }
+}
+
+function findMenuById(menus: MenuListItem[], id: string): MenuListItem | null {
+  for (const menu of menus) {
+    if (menu.id === id) {
+      return menu;
+    }
+    if (menu.children) {
+      const found = findMenuById(menu.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// 过滤菜单树
+const filteredTreeData = computed(() => {
+  if (!searchKeyword.value) {
+    return menuTreeData.value;
+  }
+  
+  const filterMenu = (menus: MenuListItem[]): MenuListItem[] => {
+    return menus
+      .map((menu) => {
+        const match = menu.menuName.toLowerCase().includes(searchKeyword.value.toLowerCase());
+        const filteredChildren = menu.children ? filterMenu(menu.children) : [];
+        
+        if (match || filteredChildren.length > 0) {
+          return {
+            ...menu,
+            children: filteredChildren.length > 0 ? filteredChildren : menu.children,
+          };
+        }
+        return null;
+      })
+      .filter((menu): menu is MenuListItem => menu !== null);
+  };
+  
+  return filterMenu(menuTreeData.value);
+});
+
+async function handleSavePermissions() {
+  try {
+    if (!currentRole.value) {
+      message.warning('请先选择角色');
+      return;
+    }
+    
+    // 确保 checkedKeys 是数组格式
+    const menuIds = Array.isArray(checkedKeys.value) 
+      ? checkedKeys.value 
+      : (checkedKeys.value as any)?.checked || [];
+    
+    if (menuIds.length === 0) {
+      message.warning('请至少选择一个菜单权限');
+      return;
+    }
+    
+    permissionSubmitting.value = true;
+    
+    await saveRolePermissionsApi({
+      roleId: currentRole.value.id,
+      menuIds: menuIds,
+    });
+    
+    message.success('保存权限成功');
+    permissionModalVisible.value = false;
+    // 刷新角色列表
+    fetchList();
+  } catch (error: any) {
+    const errMsg =
+      error?.response?.data?.message || error?.message || '保存权限失败';
+    message.error(errMsg);
+  } finally {
+    permissionSubmitting.value = false;
+  }
+}
+
+function closePermissionModal() {
+  permissionModalVisible.value = false;
+  currentRole.value = null;
+  menuTreeData.value = [];
+  checkedKeys.value = [];
+  expandedKeys.value = [];
+  searchKeyword.value = '';
+}
+
 onMounted(fetchList);
 </script>
 
@@ -328,6 +606,14 @@ onMounted(fetchList);
             >
               删除
             </Button>
+            <Button
+              size="small"
+              type="link"
+              class="cursor-pointer"
+              @click="openPermissionModal(record)"
+            >
+              权限
+            </Button>
           </Space>
         </template>
       </template>
@@ -383,6 +669,80 @@ onMounted(fetchList);
         </Form.Item>
       </Form>
     </Modal>
+
+    <!-- 权限配置弹窗 -->
+    <Modal
+      v-model:open="permissionModalVisible"
+      :title="`菜单权限 (${currentRole?.roleName || ''})`"
+      width="600px"
+      :confirm-loading="permissionSubmitting"
+      ok-text="保存配置"
+      cancel-text="取消"
+      @cancel="closePermissionModal"
+      @ok="handleSavePermissions"
+    >
+      <div class="permission-modal-content">
+        <!-- 搜索框 -->
+        <Input
+          v-model:value="searchKeyword"
+          placeholder="请输入菜单进行搜索"
+          allow-clear
+          class="mb-3"
+        />
+        
+        <!-- 操作选项 -->
+        <div class="mb-3 flex gap-4">
+          <Checkbox v-model:checked="expandAll" @change="handleExpandAll">
+            展开/折叠
+          </Checkbox>
+          <Checkbox v-model:checked="selectAll" @change="handleSelectAll">
+            全选/全不选
+          </Checkbox>
+          <Checkbox v-model:checked="parentChildLinkage">
+            父子联动
+          </Checkbox>
+        </div>
+        
+        <!-- 菜单树 -->
+        <div
+          v-if="permissionLoading"
+          class="flex items-center justify-center"
+          style="min-height: 300px"
+        >
+          <span>加载中...</span>
+        </div>
+        <Tree
+          v-else
+          v-model:expanded-keys="expandedKeys"
+          v-model:checked-keys="checkedKeys"
+          :tree-data="filteredTreeData"
+          checkable
+          :check-strictly="!parentChildLinkage"
+          :field-names="{ children: 'children', title: 'menuName', key: 'id' }"
+          @check="handleCheck"
+          class="permission-tree"
+        />
+      </div>
+    </Modal>
   </div>
 </template>
+
+<style scoped>
+.permission-modal-content {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.permission-tree {
+  min-height: 300px;
+}
+
+.permission-tree :deep(.ant-tree-node-content-wrapper) {
+  padding: 4px 8px;
+}
+
+.permission-tree :deep(.ant-tree-child-tree) {
+  margin-left: 24px;
+}
+</style>
 

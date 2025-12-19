@@ -215,3 +215,92 @@ export async function getAllMenusApi() {
   
   return routes;
 }
+
+/**
+ * 获取菜单列表（用于权限配置）
+ * 接口：GET /api/Menu/list
+ * 只返回 menuType 为 M 和 C 的菜单，只包含 id 和 menuName
+ */
+export interface MenuListItem {
+  id: string;
+  menuName: string;
+  parentId?: string;
+  menuType?: 'M' | 'C' | 'F';
+  children?: MenuListItem[];
+}
+
+export async function getMenuListApi(): Promise<MenuListItem[]> {
+  const menuList = await requestClient.get<BackendMenu[] | MenuListItem[]>('/api/Menu/list');
+  const menus = Array.isArray(menuList) ? menuList : [];
+  
+  // 检查是否已经是树形结构（有 children 字段）
+  const isTreeStructure = menus.some((menu: any) => Array.isArray(menu.children));
+  
+  if (isTreeStructure) {
+    // 如果已经是树形结构，直接过滤并转换
+    const filterTree = (items: any[]): MenuListItem[] => {
+      return items
+        .filter((menu) => menu.menuType === 'M' || menu.menuType === 'C')
+        .map((menu) => ({
+          id: String(menu.id), // 确保ID是字符串类型
+          menuName: menu.menuName,
+          parentId: menu.parentId ? String(menu.parentId) : undefined,
+          menuType: menu.menuType,
+          children: menu.children && menu.children.length > 0 ? filterTree(menu.children) : undefined,
+        }))
+        .filter((menu) => menu.menuName); // 确保有 menuName
+    };
+    return filterTree(menus);
+  }
+  
+  // 如果是扁平结构，需要构建树形结构
+  // 过滤只保留 M 和 C 类型，只提取 id 和 menuName
+  const filteredMenus = menus
+    .filter((menu: any) => (menu.menuType === 'M' || menu.menuType === 'C') && menu.menuName && menu.id)
+    .map((menu: any) => ({
+      id: String(menu.id), // 确保ID是字符串类型
+      menuName: menu.menuName,
+      parentId: menu.parentId && menu.parentId.trim() !== '' ? String(menu.parentId) : null,
+      menuType: menu.menuType,
+    }));
+  
+  // 构建树形结构
+  const menuMap = new Map<string, MenuListItem>();
+  const rootMenus: MenuListItem[] = [];
+  
+  // 第一遍：创建所有节点
+  filteredMenus.forEach((menu) => {
+    menuMap.set(menu.id, { ...menu, children: [] });
+  });
+  
+  // 第二遍：构建父子关系
+  filteredMenus.forEach((menu) => {
+    const node = menuMap.get(menu.id)!;
+    // parentId 存在且不为空，且在 menuMap 中存在
+    if (menu.parentId && menuMap.has(menu.parentId)) {
+      const parent = menuMap.get(menu.parentId)!;
+      if (!parent.children) {
+        parent.children = [];
+      }
+      parent.children.push(node);
+    } else {
+      // 没有父节点或父节点不存在，作为根节点
+      rootMenus.push(node);
+    }
+  });
+  
+  // 清理空的 children 数组
+  const cleanEmptyChildren = (items: MenuListItem[]): MenuListItem[] => {
+    return items.map((item) => {
+      const cleaned: MenuListItem = { ...item };
+      if (cleaned.children && cleaned.children.length > 0) {
+        cleaned.children = cleanEmptyChildren(cleaned.children);
+      } else {
+        delete cleaned.children;
+      }
+      return cleaned;
+    });
+  };
+  
+  return cleanEmptyChildren(rootMenus);
+}

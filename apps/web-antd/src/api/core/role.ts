@@ -121,3 +121,67 @@ export async function deleteRoleApi(id: string): Promise<void> {
   await requestClient.delete(`/api/Role/${id}`);
 }
 
+/**
+ * 获取角色权限
+ * 接口：POST /api/Role/{roleId}
+ * 参数：roleId 作为请求体参数
+ */
+export async function getRolePermissionsApi(roleId: string): Promise<any> {
+  const res = await requestClient.post(`/api/Role/${roleId}`, {
+    roleId,
+  });
+  return res;
+}
+
+/**
+ * 保存角色权限
+ * 接口：POST /api/Role/savePermissions
+ */
+export interface SaveRolePermissionsParams {
+  roleId: string;
+  menuIds: string[];
+}
+
+export async function saveRolePermissionsApi(
+  params: SaveRolePermissionsParams,
+): Promise<void> {
+  await requestClient.post('/api/Role/savePermissions', params);
+}
+
+/**
+ * 获取角色列表（简化版，用于下拉选择）
+ * 接口：GET /api/Role/list
+ * 只获取前20条，只返回 id 和 roleName
+ */
+export interface RoleOption {
+  id: string;
+  roleName: string;
+}
+
+export async function getRoleOptionsApi(): Promise<RoleOption[]> {
+  const page = await requestClient.get<BackendRolePage>('/api/Role/list', {
+    params: {
+      PageIndex: 1,
+      PageSize: 20,
+    },
+  });
+  const list: BackendRoleItem[] = page?.data ?? [];
+  return list.slice(0, 20).map((item) => ({
+    id: item.id,
+    roleName: item.roleName,
+  }));
+}
+
+/**
+ * 获取用户角色列表
+ * 接口：GET /api/Role/user/{userId}
+ */
+export async function getUserRolesApi(userId: string): Promise<RoleOption[]> {
+  const roles = await requestClient.get<BackendRoleItem[]>(`/api/Role/user/${userId}`);
+  const list = Array.isArray(roles) ? roles : [];
+  return list.map((item) => ({
+    id: item.id,
+    roleName: item.roleName,
+  }));
+}
+
