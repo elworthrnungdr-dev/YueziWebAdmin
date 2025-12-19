@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import VisitorView from './visitor/index.vue';
+import VisitorView from '../customer/visit/index.vue';
 </script>
 
 <template>

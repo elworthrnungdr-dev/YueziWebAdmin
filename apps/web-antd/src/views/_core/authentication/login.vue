@@ -27,8 +27,8 @@ async function fetchBranches() {
     branchLoading.value = true;
     const list = await getAllBranchApi();
     branchOptions.value = (list || []).map((item) => ({
-      // 页面上展示 id（同时带上门店信息便于识别）
-      label: `${item.id}`,
+      // 页面上展示门店名称，但传参时使用 id
+      label: item.branchName || item.id,
       value: item.id,
     }));
 
@@ -62,7 +62,7 @@ const formSchema = computed((): VbenFormSchema[] => {
       component: 'Select',
       // 用函数形式确保 options 响应式更新（接口返回后立即生效）
       componentProps: () => ({
-        placeholder: '请输入门店ID',
+        placeholder: '请选择门店',
         options: branchLoaded.value ? branchOptions.value : [],
         // 不需要右侧清除(×)小图标
         allowClear: false,
@@ -75,8 +75,8 @@ const formSchema = computed((): VbenFormSchema[] => {
         },
       }),
       fieldName: 'branchId',
-      label: '门店编号',
-      rules: z.string().min(1, { message: '请输入门店ID' }),
+      label: '门店',
+      rules: z.string().min(1, { message: '请选择门店' }),
     },
     {
       component: 'VbenInput',

@@ -172,7 +172,7 @@ const formModel = ref<CreateEmployeeParams>({
 
 const formRules = {
   employeesName: [{ required: true, message: '请输入职工姓名' }],
-  employeeNumber: [{ required: true, message: '请输入工号（登录用户名）' }],
+  employeeNumber: [{ required: true, message: '请输入工号' }],
   tDepartmentId: [{ required: true, message: '请选择部门' }],
   gender: [{ required: true, message: '请选择性别' }],
   phoneNumber: [{ required: true, message: '请输入电话号码' }],

@@ -457,7 +457,7 @@ onMounted(() => {
     <Modal
       v-model:open="createModalVisible"
       :title="isEditMode ? '更新设备的登记项目' : '创建设备的登记项目'"
-      width="500px"
+      width="800px"
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="closeCreateModal"
