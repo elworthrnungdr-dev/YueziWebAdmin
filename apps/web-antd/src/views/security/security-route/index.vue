@@ -455,7 +455,7 @@ function handleDelete(record: SecurityRouteItem) {
         :rules="formRules"
         layout="vertical"
       >
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <Form.Item label="线路编码" name="routeCode">
             <Input
               v-model:value="formModel.routeCode"

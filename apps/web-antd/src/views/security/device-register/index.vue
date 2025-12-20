@@ -469,7 +469,7 @@ onMounted(() => {
         :rules="formRules"
         layout="vertical"
       >
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <Form.Item label="项目编码" name="projectCode">
             <Input
               v-model:value="formModel.projectCode"
