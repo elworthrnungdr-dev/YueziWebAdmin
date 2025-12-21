@@ -259,7 +259,7 @@ const checkedKeys = ref<string[]>([]);
 const searchKeyword = ref('');
 const expandAll = ref(false);
 const selectAll = ref(false);
-const parentChildLinkage = ref(false);
+const parentChildLinkage = ref(true); // 默认启用父子联动
 
 // 扁平化菜单数据（用于搜索）
 const flatMenuList = ref<MenuListItem[]>([]);
@@ -301,7 +301,7 @@ async function openPermissionModal(record: RoleItem) {
   searchKeyword.value = '';
   expandAll.value = false;
   selectAll.value = false;
-  parentChildLinkage.value = false;
+  parentChildLinkage.value = true; // 默认启用父子联动
   checkedKeys.value = [];
   expandedKeys.value = [];
   
@@ -697,9 +697,6 @@ onMounted(fetchList);
           </Checkbox>
           <Checkbox v-model:checked="selectAll" @change="handleSelectAll">
             全选/全不选
-          </Checkbox>
-          <Checkbox v-model:checked="parentChildLinkage">
-            父子联动
           </Checkbox>
         </div>
         

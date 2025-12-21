@@ -219,7 +219,8 @@ export async function getAllMenusApi() {
 /**
  * 获取菜单列表（用于权限配置）
  * 接口：GET /api/Menu/list
- * 只返回 menuType 为 M 和 C 的菜单，只包含 id 和 menuName
+ * 返回 menuType 为 M、C 和 F 的菜单，只包含 id 和 menuName
+ * F 类型的菜单（按钮权限）会显示在对应的子菜单下面
  */
 export interface MenuListItem {
   id: string;
@@ -237,10 +238,10 @@ export async function getMenuListApi(): Promise<MenuListItem[]> {
   const isTreeStructure = menus.some((menu: any) => Array.isArray(menu.children));
   
   if (isTreeStructure) {
-    // 如果已经是树形结构，直接过滤并转换
+    // 如果已经是树形结构，直接过滤并转换（包含 M、C、F 类型）
     const filterTree = (items: any[]): MenuListItem[] => {
       return items
-        .filter((menu) => menu.menuType === 'M' || menu.menuType === 'C')
+        .filter((menu) => (menu.menuType === 'M' || menu.menuType === 'C' || menu.menuType === 'F'))
         .map((menu) => ({
           id: String(menu.id), // 确保ID是字符串类型
           menuName: menu.menuName,
@@ -254,8 +255,8 @@ export async function getMenuListApi(): Promise<MenuListItem[]> {
   }
   
   // 如果是扁平结构，需要构建树形结构
-  // 过滤只保留 M 和 C 类型，只提取 id 和 menuName
-  const filteredMenus = menus
+  // 先处理 M 和 C 类型，构建基础树结构
+  const mcMenus = menus
     .filter((menu: any) => (menu.menuType === 'M' || menu.menuType === 'C') && menu.menuName && menu.id)
     .map((menu: any) => ({
       id: String(menu.id), // 确保ID是字符串类型
@@ -264,17 +265,27 @@ export async function getMenuListApi(): Promise<MenuListItem[]> {
       menuType: menu.menuType,
     }));
   
-  // 构建树形结构
+  // 获取 F 类型的菜单（按钮权限）
+  const fMenus = menus
+    .filter((menu: any) => menu.menuType === 'F' && menu.menuName && menu.id)
+    .map((menu: any) => ({
+      id: String(menu.id), // 确保ID是字符串类型
+      menuName: menu.menuName,
+      parentId: menu.parentId && menu.parentId.trim() !== '' ? String(menu.parentId) : null,
+      menuType: menu.menuType,
+    }));
+  
+  // 构建树形结构（先构建 M 和 C 的基础树）
   const menuMap = new Map<string, MenuListItem>();
   const rootMenus: MenuListItem[] = [];
   
-  // 第一遍：创建所有节点
-  filteredMenus.forEach((menu) => {
+  // 第一遍：创建所有 M 和 C 节点
+  mcMenus.forEach((menu) => {
     menuMap.set(menu.id, { ...menu, children: [] });
   });
   
-  // 第二遍：构建父子关系
-  filteredMenus.forEach((menu) => {
+  // 第二遍：构建 M 和 C 的父子关系
+  mcMenus.forEach((menu) => {
     const node = menuMap.get(menu.id)!;
     // parentId 存在且不为空，且在 menuMap 中存在
     if (menu.parentId && menuMap.has(menu.parentId)) {
@@ -286,6 +297,22 @@ export async function getMenuListApi(): Promise<MenuListItem[]> {
     } else {
       // 没有父节点或父节点不存在，作为根节点
       rootMenus.push(node);
+    }
+  });
+  
+  // 第三遍：将 F 类型的菜单添加到对应的父菜单下
+  fMenus.forEach((fMenu) => {
+    const fMenuItem: MenuListItem = { ...fMenu, children: [] };
+    // 如果 F 菜单有 parentId，且 parentId 在 menuMap 中存在，则添加到父菜单下
+    if (fMenu.parentId && menuMap.has(fMenu.parentId)) {
+      const parent = menuMap.get(fMenu.parentId)!;
+      if (!parent.children) {
+        parent.children = [];
+      }
+      parent.children.push(fMenuItem);
+    } else {
+      // 如果 F 菜单没有父节点或父节点不在 M/C 树中，作为根节点（这种情况应该很少）
+      rootMenus.push(fMenuItem);
     }
   });
   
