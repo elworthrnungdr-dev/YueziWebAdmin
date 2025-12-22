@@ -31,3 +31,4 @@ export * from './materialCategory';
 export * from './material';
 export * from './repairRecord';
 export * from './branch';
+export * from './workflowConditionTemplate';
