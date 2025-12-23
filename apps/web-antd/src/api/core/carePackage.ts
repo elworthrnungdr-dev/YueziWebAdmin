@@ -11,9 +11,9 @@ export interface CarePackageListParams {
 
 export interface CarePackageItemDetail {
   id: string;
-  packageId: string;
+  packageId?: string;
   projectId: string;
-  projectName: string;
+  projectName?: string;
   quantity: number;
 }
 
@@ -24,8 +24,8 @@ export interface BackendCarePackageItem {
   statusText?: string;
   remark?: string;
   createdAt?: string;
-  totalPrice: number;
-  items: CarePackageItemDetail[];
+  totalPrice?: number;
+  items?: CarePackageItemDetail[];
 }
 
 export interface BackendCarePackagePage {
@@ -34,14 +34,12 @@ export interface BackendCarePackagePage {
   totalCount: number;
   pages: number;
   data: BackendCarePackageItem[];
-  hasPrevious: boolean;
-  hasNext: boolean;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
 }
 
-export interface CarePackageItem extends BackendCarePackageItem {}
-
 export interface CarePackageListResult {
-  items: CarePackageItem[];
+  items: BackendCarePackageItem[];
   total: number;
 }
 
@@ -55,24 +53,19 @@ export interface CreateCarePackageParams {
   totalPrice: number;
   status: number;
   remark?: string;
-  items: CarePackageItemInput[];
+  items?: CarePackageItemInput[];
 }
 
 export interface UpdateCarePackageParams extends CreateCarePackageParams {
   id: string;
 }
 
-/**
- * 获取产康套餐项目列表
- * 接口：GET /api/CarePackage/list
- */
 export async function getCarePackageListApi(
   params: CarePackageListParams,
 ): Promise<CarePackageListResult> {
-  const page = await requestClient.get<BackendCarePackagePage>(
-    '/api/CarePackage/list',
-    { params },
-  );
+  const page = await requestClient.get<BackendCarePackagePage>('/api/CarePackage/list', {
+    params,
+  });
   const list: BackendCarePackageItem[] = page?.data ?? [];
   return {
     items: Array.isArray(list) ? list : [],
@@ -80,43 +73,18 @@ export async function getCarePackageListApi(
   };
 }
 
-/**
- * 获取产康套餐项目详情
- * 接口：GET /api/CarePackage/{id}
- */
-export async function getCarePackageDetailApi(
-  id: string,
-): Promise<CarePackageItem> {
-  const response = await requestClient.get<BackendCarePackageItem>(
-    `/api/CarePackage/${id}`,
-  );
-  return response as unknown as CarePackageItem;
+export async function getCarePackageDetailApi(id: string): Promise<BackendCarePackageItem> {
+  return requestClient.get<BackendCarePackageItem>(`/api/CarePackage/${id}`);
 }
 
-/**
- * 创建产康套餐项目
- * 接口：POST /api/CarePackage
- */
-export async function createCarePackageApi(
-  params: CreateCarePackageParams,
-): Promise<void> {
+export async function createCarePackageApi(params: CreateCarePackageParams): Promise<void> {
   await requestClient.post('/api/CarePackage', params);
 }
 
-/**
- * 更新产康套餐项目
- * 接口：PUT /api/CarePackage
- */
-export async function updateCarePackageApi(
-  params: UpdateCarePackageParams,
-): Promise<void> {
+export async function updateCarePackageApi(params: UpdateCarePackageParams): Promise<void> {
   await requestClient.put('/api/CarePackage', params);
 }
 
-/**
- * 删除产康套餐项目
- * 接口：DELETE /api/CarePackage/{id}
- */
 export async function deleteCarePackageApi(id: string): Promise<void> {
   await requestClient.delete(`/api/CarePackage/${id}`);
 }

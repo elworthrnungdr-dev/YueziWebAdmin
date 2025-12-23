@@ -55,6 +55,21 @@ export interface UpdateCareProjectParams extends CreateCareProjectParams {
   id: string;
 }
 
+export interface CareProjectAllListParams {
+  Status?: number;
+  Type?: number;
+  PageIndex?: number;
+  PageSize?: number;
+}
+
+export interface CareProjectAllListItem {
+  id: string;
+  name: string;
+  price?: number;
+  status?: number;
+  statusText?: string;
+}
+
 export async function getCareProjectListApi(
   params: CareProjectListParams,
 ): Promise<CareProjectListResult> {
@@ -82,5 +97,29 @@ export async function updateCareProjectApi(params: UpdateCareProjectParams): Pro
 
 export async function deleteCareProjectApi(id: string): Promise<void> {
   await requestClient.delete(`/api/CareProject/${id}`);
+}
+
+export async function getCareProjectAllListApi(
+  params?: CareProjectAllListParams,
+): Promise<CareProjectAllListItem[]> {
+  const page = await requestClient.get<BackendCareProjectPage>('/api/CareProject/all/list', {
+    params: {
+      Status: 1,
+      Type: 1,
+      PageIndex: 1,
+      PageSize: 100,
+      ...params,
+    },
+  });
+  const list: BackendCareProjectItem[] = page?.data ?? [];
+  return Array.isArray(list)
+    ? list.map((item) => ({
+        id: item.id,
+        name: (item as any).name || item.projectName || item.productCode || '',
+        price: (item as any).price ?? item.standardPrice,
+        status: item.status,
+        statusText: item.statusText,
+      }))
+    : [];
 }
 

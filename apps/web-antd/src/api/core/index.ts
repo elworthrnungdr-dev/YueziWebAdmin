@@ -31,6 +31,7 @@ export * from './materialCategory';
 export * from './material';
 export * from './repairRecord';
 export * from './branch';
+export * from './carePackage';
 export * from './careProject';
 export * from './mealSample';
 export * from './workflowConditionTemplate';
