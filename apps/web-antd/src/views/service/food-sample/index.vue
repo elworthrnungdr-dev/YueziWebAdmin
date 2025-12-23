@@ -600,6 +600,7 @@ function handleDelete(record: MealSampleItem) {
         :model="formModel"
         :rules="formRules"
         layout="vertical"
+        class="sample-form"
       >
         <div class="grid grid-cols-2 gap-4">
           <Form.Item label="留样编号（如：LY2024010001）" name="sampleNo">
@@ -794,29 +795,28 @@ function handleDelete(record: MealSampleItem) {
 </template>
 
 <style scoped>
-/* 表单居中显示 */
-:deep(.ant-form) {
+:deep(.sample-form .ant-form) {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-:deep(.ant-form-item) {
+:deep(.sample-form .ant-form-item) {
   width: 100%;
   max-width: 600px;
 }
 
-/* 输入框添加3个缩进 */
-:deep(.ant-form-item-control-input) {
+/* 输入框添加3个缩进（仅限弹窗表单） */
+:deep(.sample-form .ant-form-item-control-input) {
   padding-left: 3em !important;
 }
 
-/* 输入框减少50px宽度 */
-:deep(.ant-input),
-:deep(.ant-picker),
-:deep(.ant-select),
-:deep(.ant-input-number),
-:deep(.ant-input-number-input) {
+/* 输入框减少50px宽度（仅限弹窗表单，避免影响顶部搜索栏） */
+:deep(.sample-form .ant-input),
+:deep(.sample-form .ant-picker),
+:deep(.sample-form .ant-select),
+:deep(.sample-form .ant-input-number),
+:deep(.sample-form .ant-input-number-input) {
   width: calc(100% - 50px) !important;
   max-width: calc(100% - 50px) !important;
 }

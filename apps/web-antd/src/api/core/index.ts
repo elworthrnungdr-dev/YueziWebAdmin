@@ -31,4 +31,6 @@ export * from './materialCategory';
 export * from './material';
 export * from './repairRecord';
 export * from './branch';
+export * from './mealSample';
 export * from './workflowConditionTemplate';
+export * from './customerFeedback';

@@ -209,13 +209,13 @@ const formModel = ref<CreateCustomerParams>({
   phoneNumber: '',
   wechat: '',
   customerStatus: 1,
-  paymentStatus: undefined,
+  paymentStatus: 1,
   expectedDeliveryDate: undefined,
   deliveryDate: undefined,
-  deliveryMethod: undefined,
+  deliveryMethod: 1,
   parity: undefined,
-  fetusType: undefined,
-  babyGender: undefined,
+  fetusType: 1,
+  babyGender: 1,
   deliveryHospital: '',
   stayTimes: undefined,
   tRoomId: '',
@@ -237,7 +237,7 @@ const formModel = ref<CreateCustomerParams>({
   company: '',
   occupation: '',
   email: '',
-  customerSource: undefined,
+  customerSource: 1,
   referrerName: '',
   referrerPhone: '',
   idcardFront: '',
@@ -261,13 +261,13 @@ function resetForm() {
     phoneNumber: '',
     wechat: '',
     customerStatus: 1,
-    paymentStatus: undefined,
+  paymentStatus: 1,
     expectedDeliveryDate: undefined,
     deliveryDate: undefined,
-    deliveryMethod: undefined,
+  deliveryMethod: 1,
     parity: undefined,
-    fetusType: undefined,
-    babyGender: undefined,
+  fetusType: 1,
+  babyGender: 1,
     deliveryHospital: '',
     stayTimes: undefined,
     tRoomId: '',
@@ -289,7 +289,7 @@ function resetForm() {
     company: '',
     occupation: '',
     email: '',
-    customerSource: undefined,
+  customerSource: 1,
     referrerName: '',
     referrerPhone: '',
     idcardFront: '',
@@ -743,11 +743,14 @@ onMounted(fetchList);
             </Form.Item>
 
             <Form.Item label="付款状态" name="paymentStatus">
-              <InputNumber
+              <Select
                 v-model:value="formModel.paymentStatus"
-                placeholder="请输入付款状态"
-                style="width: 100%"
-              />
+                placeholder="请选择付款状态"
+              >
+                <Select.Option :value="1">未付</Select.Option>
+                <Select.Option :value="2">部分付款</Select.Option>
+                <Select.Option :value="3">已付清</Select.Option>
+              </Select>
             </Form.Item>
 
             <Form.Item label="预产期" name="expectedDeliveryDate">
@@ -759,21 +762,23 @@ onMounted(fetchList);
               />
             </Form.Item>
 
-            <Form.Item label="生产日期" name="deliveryDate">
+            <Form.Item label="分娩时间" name="deliveryDate">
               <DatePicker
                 v-model:value="formModel.deliveryDate"
                 format="YYYY-MM-DD"
-                placeholder="请选择生产日期"
+                placeholder="请选择分娩时间"
                 style="width: 100%"
               />
             </Form.Item>
 
             <Form.Item label="分娩方式" name="deliveryMethod">
-              <InputNumber
+              <Select
                 v-model:value="formModel.deliveryMethod"
-                placeholder="请输入分娩方式"
-                style="width: 100%"
-              />
+                placeholder="请选择分娩方式"
+              >
+                <Select.Option :value="1">顺产</Select.Option>
+                <Select.Option :value="2">剖宫产</Select.Option>
+              </Select>
             </Form.Item>
 
             <Form.Item label="胎次" name="parity">
@@ -786,25 +791,31 @@ onMounted(fetchList);
             </Form.Item>
 
             <Form.Item label="胎儿类型" name="fetusType">
-              <InputNumber
+              <Select
                 v-model:value="formModel.fetusType"
-                placeholder="请输入胎儿类型"
-                style="width: 100%"
-              />
+                placeholder="请选择胎儿类型"
+              >
+                <Select.Option :value="1">单胎</Select.Option>
+                <Select.Option :value="2">双胎</Select.Option>
+                <Select.Option :value="3">多胎</Select.Option>
+              </Select>
             </Form.Item>
 
             <Form.Item label="宝宝性别" name="babyGender">
-              <InputNumber
+              <Select
                 v-model:value="formModel.babyGender"
-                placeholder="请输入宝宝性别"
-                style="width: 100%"
-              />
+                placeholder="请选择宝宝性别"
+              >
+                <Select.Option :value="1">男</Select.Option>
+                <Select.Option :value="2">女</Select.Option>
+                <Select.Option :value="3">未知</Select.Option>
+              </Select>
             </Form.Item>
 
-            <Form.Item label="生产医院" name="deliveryHospital">
+            <Form.Item label="分娩医院" name="deliveryHospital">
               <Input
                 v-model:value="formModel.deliveryHospital"
-                placeholder="请输入生产医院"
+                placeholder="请输入分娩医院"
                 allow-clear
               />
             </Form.Item>
@@ -891,26 +902,26 @@ onMounted(fetchList);
               />
             </Form.Item>
 
-            <Form.Item label="陪同人姓名" name="companionName">
+            <Form.Item label="陪护人姓名" name="companionName">
               <Input
                 v-model:value="formModel.companionName"
-                placeholder="请输入陪同人姓名"
+                placeholder="请输入陪护人姓名"
                 allow-clear
               />
             </Form.Item>
 
-            <Form.Item label="陪同人电话" name="companionPhone">
+            <Form.Item label="陪护人电话" name="companionPhone">
               <Input
                 v-model:value="formModel.companionPhone"
-                placeholder="请输入陪同人电话"
+                placeholder="请输入陪护人电话"
                 allow-clear
               />
             </Form.Item>
 
-            <Form.Item label="陪同人关系" name="companionRelation">
+            <Form.Item label="陪护人关系" name="companionRelation">
               <Input
                 v-model:value="formModel.companionRelation"
-                placeholder="请输入陪同人关系"
+                placeholder="请输入陪护人关系"
                 allow-clear
               />
             </Form.Item>
@@ -933,11 +944,16 @@ onMounted(fetchList);
             </Form.Item>
 
             <Form.Item label="证件类型" name="idType">
-              <InputNumber
+              <Select
                 v-model:value="formModel.idType"
-                placeholder="请输入证件类型"
-                style="width: 100%"
-              />
+                placeholder="请选择证件类型"
+              >
+                <Select.Option :value="1">身份证</Select.Option>
+                <Select.Option :value="2">驾驶证</Select.Option>
+                <Select.Option :value="3">护照</Select.Option>
+                <Select.Option :value="4">港澳台证件</Select.Option>
+                <Select.Option :value="99">其他</Select.Option>
+              </Select>
             </Form.Item>
 
             <Form.Item label="证件号码" name="idNumber">
@@ -948,18 +964,18 @@ onMounted(fetchList);
               />
             </Form.Item>
 
-            <Form.Item label="国籍" name="nationality">
+            <Form.Item label="民族" name="nationality">
               <Input
                 v-model:value="formModel.nationality"
-                placeholder="请输入国籍"
+                placeholder="请输入民族"
                 allow-clear
               />
             </Form.Item>
 
-            <Form.Item label="公司" name="company">
+            <Form.Item label="工作单位" name="company">
               <Input
                 v-model:value="formModel.company"
-                placeholder="请输入公司"
+                placeholder="请输入工作单位"
                 allow-clear
               />
             </Form.Item>
@@ -981,25 +997,29 @@ onMounted(fetchList);
             </Form.Item>
 
             <Form.Item label="客户来源" name="customerSource">
-              <InputNumber
+              <Select
                 v-model:value="formModel.customerSource"
-                placeholder="请输入客户来源"
-                style="width: 100%"
-              />
+                placeholder="请选择客户来源"
+              >
+                <Select.Option :value="1">广告</Select.Option>
+                <Select.Option :value="2">介绍</Select.Option>
+                <Select.Option :value="3">网络</Select.Option>
+                <Select.Option :value="4">自来客</Select.Option>
+              </Select>
             </Form.Item>
 
-            <Form.Item label="推荐人姓名" name="referrerName">
+            <Form.Item label="介绍人" name="referrerName">
               <Input
                 v-model:value="formModel.referrerName"
-                placeholder="请输入推荐人姓名"
+                placeholder="请输入介绍人姓名"
                 allow-clear
               />
             </Form.Item>
 
-            <Form.Item label="推荐人电话" name="referrerPhone">
+            <Form.Item label="介绍人电话" name="referrerPhone">
               <Input
                 v-model:value="formModel.referrerPhone"
-                placeholder="请输入推荐人电话"
+                placeholder="请输入介绍人电话"
                 allow-clear
               />
             </Form.Item>

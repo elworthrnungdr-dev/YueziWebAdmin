@@ -101,7 +101,7 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    width: 100,
+    width: 200,
     fixed: 'right',
   },
 ];
@@ -454,8 +454,11 @@ onMounted(fetchList);
 
 <template>
   <div class="p-4">
-    <div class="mb-3 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
+    <div
+      class="mb-3 flex items-center gap-3 overflow-x-auto"
+      style="white-space: nowrap"
+    >
+      <div class="flex items-center space-x-3 shrink-0">
         <Button
           type="primary"
           size="small"
@@ -465,18 +468,18 @@ onMounted(fetchList);
           添加员工
         </Button>
       </div>
-      <Space>
+      <Space :wrap="false" style="white-space: nowrap">
         <Input
           v-model:value="queryForm.EmployeesName"
           allow-clear
           placeholder="按姓名搜索"
-          style="width: 180px"
+          style="width: 180px; min-width: 180px"
         />
         <Input
           v-model:value="queryForm.EmployeeNumber"
           allow-clear
           placeholder="按工号搜索"
-          style="width: 180px"
+          style="width: 180px; min-width: 180px"
         />
         <Button type="primary" class="cursor-pointer" @click="fetchList">
           查询
@@ -496,6 +499,8 @@ onMounted(fetchList);
         showSizeChanger: true,
       }"
       row-key="id"
+      :scroll="{ x: 'max-content' }"
+      class="employee-table nowrap-table"
       @change="handleTableChange"
     >
       <template #bodyCell="{ column, record }">
@@ -811,6 +816,19 @@ onMounted(fetchList);
 </template>
 
 <style scoped>
+.nowrap-table {
+  width: 100%;
+}
+
+:deep(.nowrap-table .ant-table-container) {
+  overflow-x: auto;
+}
+
+:deep(.nowrap-table .ant-table-thead > tr > th),
+:deep(.nowrap-table .ant-table-tbody > tr > td) {
+  white-space: nowrap;
+}
+
 /* 增加表单标签和输入框之间的间距 */
 :deep(.ant-form-item-label) {
   padding-right: 16px !important;
