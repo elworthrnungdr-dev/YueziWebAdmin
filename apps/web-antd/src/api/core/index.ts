@@ -33,6 +33,7 @@ export * from './repairRecord';
 export * from './branch';
 export * from './carePackage';
 export * from './careProject';
+export * from './maintenanceRecord';
 export * from './mealSample';
 export * from './workflowConditionTemplate';
 export * from './customerFeedback';
