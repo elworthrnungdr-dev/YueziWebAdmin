@@ -38,3 +38,4 @@ export * from './mealSample';
 export * from './workflowConditionTemplate';
 export * from './customerFeedback';
 export * from './formFields';
+export * from './marketingScript';
