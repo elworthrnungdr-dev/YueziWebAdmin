@@ -37,3 +37,4 @@ export * from './maintenanceRecord';
 export * from './mealSample';
 export * from './workflowConditionTemplate';
 export * from './customerFeedback';
+export * from './formFields';
