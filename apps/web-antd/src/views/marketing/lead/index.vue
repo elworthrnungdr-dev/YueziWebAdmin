@@ -174,7 +174,7 @@ function leadHandleTableChange(pagination: any) {
 onMounted(() => {
   leadFetchList();
   leadLoadBranchOptions();
-  leadLoadEmployeeOptions();
+  // leadLoadEmployeeOptions(); // 暂时隐藏员工列表接口调用
 });
 
 // 弹窗相关
