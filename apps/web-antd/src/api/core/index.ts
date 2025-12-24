@@ -39,3 +39,4 @@ export * from './workflowConditionTemplate';
 export * from './customerFeedback';
 export * from './formFields';
 export * from './marketingScript';
+export * from './salesLead';
